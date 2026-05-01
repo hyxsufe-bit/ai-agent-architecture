@@ -3,157 +3,828 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI Agent 完整架构图</title>
+<title>智能体手册 · 一份关于 LLM Agent 的田野指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Serif+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
-<style>
-  :root{
-    --bg:#0f172a;
-    --panel:#ffffff;
-    --ink:#1e293b;
-    --muted:#64748b;
-    --brand:#3b82f6;
-    --brand2:#8b5cf6;
-    --border:#e2e8f0;
-    --code-bg:#f8fafc;
-    --accent:#f59e0b;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 100%);line-height:1.7}
-  .wrap{max-width:1280px;margin:0 auto;padding:32px 24px 80px}
-  header{background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 100%);color:#fff;border-radius:16px;padding:36px 40px;margin-bottom:32px;box-shadow:0 10px 30px rgba(59,130,246,.25)}
-  header h1{margin:0 0 8px;font-size:30px;letter-spacing:.5px}
-  header p{margin:0;opacity:.92;font-size:15px}
-  nav.toc{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 28px;margin-bottom:32px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-  nav.toc h3{margin:0 0 12px;font-size:15px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase}
-  nav.toc ol{margin:0;padding-left:22px;columns:2;column-gap:32px}
-  nav.toc li{margin:6px 0}
-  nav.toc a{color:var(--brand);text-decoration:none;font-weight:500}
-  nav.toc a:hover{text-decoration:underline}
-  section{background:var(--panel);border-radius:14px;padding:28px 32px;margin-bottom:28px;box-shadow:0 4px 14px rgba(0,0,0,.05);border:1px solid var(--border)}
-  section h2{margin:0 0 18px;font-size:22px;padding-bottom:12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px}
-  section h2 .num{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
-  section p.lead{color:var(--muted);margin:0 0 18px;font-size:14px}
-  /* 图表容器 */
-  .diagram-box{position:relative;background:#fdfdfd;border:1px solid var(--border);border-radius:10px;margin-top:8px;overflow:hidden}
-  .diagram-toolbar{position:absolute;top:10px;right:10px;z-index:10;display:flex;gap:4px;background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,.08);backdrop-filter:blur(6px)}
-  .diagram-toolbar button{border:none;background:transparent;cursor:pointer;width:30px;height:30px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#475569;font-size:14px;transition:all .15s}
-  .diagram-toolbar button:hover{background:#eff6ff;color:var(--brand)}
-  .diagram-toolbar button:active{transform:scale(.92)}
-  .diagram-toolbar .sep{width:1px;background:var(--border);margin:4px 2px}
-  .diagram-toolbar .zoom-level{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;padding:0 6px;min-width:42px;justify-content:center;font-family:monospace}
-  .diagram-hint{position:absolute;left:12px;bottom:10px;z-index:5;font-size:11px;color:var(--muted);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:4px;pointer-events:none;opacity:.8}
-  .mermaid{padding:24px 16px;text-align:center;cursor:grab;min-height:200px}
-  .mermaid:active{cursor:grabbing}
-  .mermaid svg{max-width:none !important;height:auto !important}
 
-  /* 全屏模式 */
-  .diagram-box.fullscreen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;border-radius:0;margin:0;background:#fff}
-  .diagram-box.fullscreen .mermaid{height:100vh;padding:60px 20px 20px}
-  body.has-fullscreen{overflow:hidden}
-  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
-  table th,table td{border:1px solid var(--border);padding:10px 14px;text-align:left;vertical-align:top}
-  table th{background:#f1f5f9;font-weight:600;color:#334155}
-  table tr:nth-child(even) td{background:#fafbfc}
-  code{background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:"SF Mono",Consolas,Monaco,monospace;font-size:13px;color:#be185d}
-  blockquote{margin:14px 0;padding:12px 18px;background:#fffbeb;border-left:4px solid var(--accent);border-radius:6px;color:#78350f;font-size:14px}
-  blockquote strong{color:#92400e}
-  ul.keyp{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-  ul.keyp li{background:linear-gradient(135deg,#eff6ff,#f3e8ff);border:1px solid #ddd6fe;border-radius:10px;padding:14px 18px;font-size:14px}
-  ul.keyp li b{color:var(--brand2);display:block;margin-bottom:4px;font-size:15px}
-  .formula{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:8px;font-family:"SF Mono",Consolas,monospace;font-size:14px;text-align:center;margin:12px 0}
-  .formula span{color:#fbbf24}
-  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:40px;padding:20px}
-  .tag{display:inline-block;background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:12px;font-size:12px;margin-right:6px}
-  details{margin:10px 0}
-  summary{cursor:pointer;font-weight:600;color:var(--brand);padding:6px 0}
+<style>
+/* ============================================================
+   THE AGENT MANUAL — Editorial Technical Magazine Aesthetic
+   Color System: cream paper + charcoal ink + signal orange
+   ============================================================ */
+:root{
+  --paper:       #f0ebe0;
+  --paper-2:     #e6dfcf;
+  --ink:         #191817;
+  --ink-soft:    #3a3632;
+  --ink-mute:    #7a726a;
+  --rule:        #2a2622;
+  --signal:      #e8491b;        /* alarm orange */
+  --signal-dk:   #b53811;
+  --accent:      #1a5c42;        /* deep botanical green */
+  --gold:        #b8893b;
+  --highlight:   #ffe680;
+  --shadow:      rgba(25,24,23,.08);
+
+  --f-display: "Fraunces", "Noto Serif SC", Georgia, serif;
+  --f-body:    "Noto Serif SC", "Instrument Sans", serif;
+  --f-mono:    "JetBrains Mono", ui-monospace, monospace;
+  --f-cn:      "Noto Serif SC", serif;
+  --f-cn-display: "Noto Serif SC", "Fraunces", serif;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family: var(--f-body);
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.6;
+  font-size: 16px;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(rgba(25,24,23,.06) 1px, transparent 1px),
+    radial-gradient(rgba(25,24,23,.04) 1px, transparent 1px);
+  background-size: 48px 48px, 12px 12px;
+  background-position: 0 0, 6px 6px;
+}
+/* paper grain overlay */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity:.55; mix-blend-mode:multiply;
+}
+
+/* ============================================================
+   TOP BAR — masthead style
+   ============================================================ */
+.masthead{
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 40px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  position: relative; z-index: 5;
+  background: var(--paper);
+}
+.masthead .issue{ color: var(--signal); font-weight: 700; }
+.masthead .date{ color: var(--ink-mute); }
+.masthead .dots{ display:inline-flex; gap:6px; }
+.masthead .dot{ width:7px; height:7px; border-radius:50%; background:var(--ink); }
+.masthead .dot.red{ background:var(--signal); }
+
+/* ============================================================
+   HERO — giant editorial headline
+   ============================================================ */
+.hero{
+  padding: 80px 40px 60px;
+  position: relative;
+  border-bottom: 2px solid var(--rule);
+  z-index: 2;
+}
+.hero .eyebrow{
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-bottom: 32px;
+  display: flex; align-items: center; gap: 14px;
+}
+.hero .eyebrow::before{
+  content:""; width:40px; height:1px; background:var(--signal);
+}
+.hero .eyebrow::after{
+  content:""; flex:1; height:1px; background:var(--rule); opacity:.3;
+}
+.hero h1{
+  font-family: var(--f-display);
+  font-size: clamp(58px, 11vw, 156px);
+  font-weight: 300;
+  line-height: .88;
+  letter-spacing: -.04em;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 30, "WONK" 0;
+}
+.hero h1 .ital{
+  font-style: italic;
+  font-weight: 300;
+  color: var(--signal);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+.hero h1 .amp{
+  font-style: italic;
+  font-family: var(--f-display);
+  color: var(--accent);
+  font-weight: 400;
+}
+.hero .deck{
+  margin-top: 40px;
+  font-family: var(--f-display);
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.45;
+  max-width: 720px;
+  color: var(--ink-soft);
+  letter-spacing: -.01em;
+}
+.hero .byline{
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.hero .byline > div{
+  padding-right: 20px;
+  border-right: 1px solid var(--rule);
+}
+.hero .byline > div:last-child{ border-right: none; }
+.hero .byline .label{ color: var(--ink-mute); margin-bottom: 6px; font-size: 10px; }
+.hero .byline .val{ color: var(--ink); font-weight: 600; }
+
+/* decorative corner mark */
+.hero .mark{
+  position: absolute; top: 40px; right: 40px;
+  width: 120px; height: 120px;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .2em;
+  color: var(--ink-mute);
+  animation: spin 40s linear infinite;
+}
+.hero .mark::before{
+  content:""; position:absolute; inset:8px; border: 1px dashed var(--rule); border-radius:50%;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* ============================================================
+   CONTENTS — Table of contents as index card
+   ============================================================ */
+.contents{
+  padding: 60px 40px;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 60px;
+  position: relative; z-index: 2;
+}
+.contents .label{
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+.contents .label .big{
+  display:block;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 56px;
+  letter-spacing: -.03em;
+  color: var(--ink);
+  margin-top: 8px;
+  text-transform: none;
+}
+.contents ol{
+  list-style: none;
+  counter-reset: toc;
+  columns: 2;
+  column-gap: 60px;
+  column-rule: 1px solid var(--rule);
+}
+.contents ol li{
+  counter-increment: toc;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px dotted var(--ink-mute);
+  break-inside: avoid;
+}
+.contents ol li::before{
+  content: "§" counter(toc, decimal-leading-zero);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--signal);
+  letter-spacing: .1em;
+  font-weight: 600;
+}
+.contents ol li a{
+  flex: 1;
+  font-family: var(--f-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -.01em;
+  transition: all .3s ease;
+  position: relative;
+}
+.contents ol li a::after{
+  content: "→";
+  opacity: 0;
+  margin-left: 10px;
+  font-family: var(--f-mono);
+  color: var(--signal);
+  transition: all .3s ease;
+}
+.contents ol li a:hover{ color: var(--signal); font-style: italic; }
+.contents ol li a:hover::after{ opacity: 1; margin-left: 16px; }
+
+/* ============================================================
+   SECTION — article block
+   ============================================================ */
+section.article{
+  padding: 100px 40px;
+  border-bottom: 1px solid var(--rule);
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+section.article::before{
+  content:"";
+  position: absolute;
+  top: 0; left: 50%;
+  width: 1px; height: 40px;
+  background: var(--rule);
+}
+
+.chapter-mark{
+  position: sticky;
+  top: 40px;
+  align-self: start;
+}
+.chapter-mark .num{
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 140px;
+  line-height: .8;
+  color: var(--signal);
+  letter-spacing: -.05em;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  display: block;
+}
+.chapter-mark .tag{
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  display: block;
+}
+.chapter-mark .tag strong{ color: var(--ink); display:block; font-weight:600; }
+
+.article-body{ min-width: 0; }
+.article-body h2{
+  font-family: var(--f-display);
+  font-size: clamp(36px, 4vw, 54px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.025em;
+  margin-bottom: 20px;
+  color: var(--ink);
+  font-optical-sizing: auto;
+}
+.article-body h2 .en{
+  display: block;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: .45em;
+  color: var(--ink-mute);
+  margin-top: 8px;
+  letter-spacing: 0;
+}
+.article-body .dek{
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--ink-soft);
+  margin-bottom: 44px;
+  max-width: 560px;
+  line-height: 1.5;
+  padding-left: 20px;
+  border-left: 2px solid var(--signal);
+}
+
+/* ============================================================
+   DIAGRAM BOX — framed like a figure plate
+   ============================================================ */
+.diagram-frame{
+  position: relative;
+  margin-top: 8px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+}
+.diagram-frame::before,
+.diagram-frame::after{
+  content:"";
+  position: absolute;
+  width: 14px; height: 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.diagram-frame::before{ top:-7px; left:-7px; }
+.diagram-frame::after{ bottom:-7px; right:-7px; }
+
+.figure-caption{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.figure-caption .fig{ color: var(--signal); font-weight: 700; }
+.figure-caption .meta{ color: var(--ink-mute); }
+
+.diagram-box{
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--paper) 0, transparent 1px),
+    linear-gradient(90deg, var(--paper) 0, transparent 1px),
+    var(--paper-2);
+  background-size: 20px 20px;
+}
+.diagram-box .mermaid{
+  padding: 20px;
+  text-align: center;
+  min-height: 400px;
+  cursor: grab;
+}
+.diagram-box .mermaid:active{ cursor: grabbing; }
+.diagram-box .mermaid svg{ max-width: none !important; height: auto !important; }
+
+.diagram-toolbar{
+  position: absolute;
+  top: 52px; right: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 2px;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 4px;
+  box-shadow: 4px 4px 0 var(--rule);
+}
+.diagram-toolbar button{
+  background: transparent;
+  border: none;
+  color: var(--paper);
+  width: 32px; height: 32px;
+  cursor: pointer;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .15s ease;
+}
+.diagram-toolbar button:hover{ background: var(--signal); color: var(--paper); }
+.diagram-toolbar .sep{ width:1px; background: var(--ink-mute); margin: 4px 2px; }
+.diagram-toolbar .zoom-level{
+  color: var(--signal);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  padding: 0 8px;
+  display: inline-flex; align-items: center;
+  min-width: 52px;
+  justify-content: center;
+  font-weight: 600;
+}
+.diagram-hint{
+  position: absolute;
+  left: 12px; bottom: 10px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  background: var(--paper);
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  pointer-events: none;
+}
+
+/* Fullscreen */
+.diagram-frame.fullscreen{
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--paper);
+  border: none;
+  display: flex; flex-direction: column;
+}
+.diagram-frame.fullscreen::before,
+.diagram-frame.fullscreen::after{ display: none; }
+.diagram-frame.fullscreen .diagram-box{ flex: 1; }
+.diagram-frame.fullscreen .mermaid{ height: calc(100vh - 44px); }
+body.has-fullscreen{ overflow: hidden; }
+
+/* ============================================================
+   TABLE — editorial data table
+   ============================================================ */
+.article-body table{
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  font-family: var(--f-body);
+  font-size: 14px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+.article-body table th{
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--ink);
+  color: var(--signal);
+  font-weight: 700;
+  vertical-align: bottom;
+}
+.article-body table td{
+  padding: 18px 14px;
+  border-bottom: 1px dotted var(--ink-mute);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.article-body table tr:last-child td{ border-bottom: none; }
+.article-body table td:first-child{
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 16px;
+  width: 140px;
+}
+.article-body table tbody tr:hover{ background: var(--paper-2); }
+
+/* ============================================================
+   PULL QUOTE / BLOCKQUOTE
+   ============================================================ */
+.article-body blockquote{
+  margin: 40px 0;
+  padding: 36px 40px 36px 80px;
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  position: relative;
+  background: var(--paper-2);
+  border-left: 4px solid var(--signal);
+}
+.article-body blockquote::before{
+  content: "“";
+  position: absolute;
+  top: 0; left: 20px;
+  font-family: var(--f-display);
+  font-size: 120px;
+  line-height: 1;
+  color: var(--signal);
+  font-style: italic;
+  opacity: .35;
+}
+.article-body blockquote strong{
+  font-family: var(--f-mono);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--signal-dk);
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   INLINE code
+   ============================================================ */
+.article-body code{
+  font-family: var(--f-mono);
+  font-size: 13px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 8px;
+  border-radius: 0;
+}
+
+/* ============================================================
+   FORMULA BOX
+   ============================================================ */
+.formula{
+  background: var(--ink);
+  color: var(--paper);
+  padding: 28px 32px;
+  margin: 32px 0;
+  font-family: var(--f-mono);
+  font-size: 16px;
+  letter-spacing: .02em;
+  text-align: center;
+  position: relative;
+  box-shadow: 6px 6px 0 var(--signal);
+}
+.formula::before{
+  content: "公式 /";
+  position: absolute;
+  top: 8px; left: 16px;
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: var(--signal);
+  font-weight: 700;
+}
+.formula span{ color: var(--signal); font-weight: 600; }
+
+/* ============================================================
+   KEY POINTS GRID
+   ============================================================ */
+.keypoints{
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 32px;
+  border: 1px solid var(--rule);
+}
+.keypoints li{
+  padding: 28px 24px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  transition: all .3s ease;
+  background: var(--paper);
+}
+.keypoints li:nth-child(3n){ border-right: none; }
+.keypoints li:nth-last-child(-n+3){ border-bottom: none; }
+.keypoints li:hover{ background: var(--ink); color: var(--paper); }
+.keypoints li:hover b{ color: var(--signal); }
+.keypoints li .no{
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--signal);
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: block;
+}
+.keypoints li b{
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 24px;
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink);
+  letter-spacing: -.01em;
+  transition: color .3s ease;
+}
+.keypoints li span.desc{
+  font-family: var(--f-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: inherit;
+  opacity: .85;
+}
+
+/* ============================================================
+   FOOTER COLOPHON
+   ============================================================ */
+footer{
+  padding: 80px 40px 60px;
+  background: var(--ink);
+  color: var(--paper);
+  text-align: center;
+  position: relative; z-index: 2;
+}
+footer .colophon{
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: .6;
+  margin-bottom: 20px;
+}
+footer .end{
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 64px;
+  color: var(--signal);
+  letter-spacing: -.02em;
+}
+footer .tech{
+  margin-top: 32px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .15em;
+  color: var(--paper);
+  opacity: .4;
+}
+
+/* ============================================================
+   ENTRANCE ANIMATIONS
+   ============================================================ */
+@keyframes rise{
+  from{ opacity:0; transform: translateY(24px); }
+  to  { opacity:1; transform: translateY(0); }
+}
+@keyframes slide-in{
+  from{ opacity:0; transform: translateX(-20px); }
+  to  { opacity:1; transform: translateX(0); }
+}
+.hero .eyebrow  { animation: slide-in .7s .1s both; }
+.hero h1        { animation: rise     .9s .2s both; }
+.hero .deck     { animation: rise     .9s .5s both; }
+.hero .byline   { animation: rise     .9s .7s both; }
+.hero .mark     { animation: rise     .9s .9s both, spin 40s linear 1s infinite; }
+
+.reveal{ opacity: 0; transform: translateY(30px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.in{ opacity: 1; transform: translateY(0); }
+
+/* Selection color */
+::selection{ background: var(--signal); color: var(--paper); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px){
+  .masthead{ padding: 12px 20px; font-size: 10px; }
+  .hero{ padding: 48px 20px 40px; }
+  .hero .mark{ display: none; }
+  .hero .byline{ grid-template-columns: 1fr 1fr; gap: 14px; }
+  .hero .byline > div{ border: none; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+  .contents{ padding: 40px 20px; grid-template-columns: 1fr; gap: 24px; }
+  .contents ol{ columns: 1; column-rule: none; }
+  section.article{ padding: 60px 20px; grid-template-columns: 1fr; gap: 24px; }
+  .chapter-mark{ position: static; display:flex; align-items:baseline; gap:20px; }
+  .chapter-mark .num{ font-size: 80px; }
+  .chapter-mark .tag{ border-top: none; padding-top: 0; margin-top: 0; }
+  .keypoints{ grid-template-columns: 1fr; }
+  .keypoints li{ border-right: none !important; border-bottom: 1px solid var(--rule) !important; }
+  .keypoints li:last-child{ border-bottom: none !important; }
+  .article-body table td:first-child{ width: auto; }
+  .article-body blockquote{ padding: 28px 20px 28px 56px; font-size: 18px; }
+  footer .end{ font-size: 42px; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<header>
-  <h1>🧠 AI Agent 完整架构图</h1>
-  <p>整合 RAG · Agent Loop · Tool/MCP/Skill · Memory · Multi-Agent 等核心概念的一张总览图</p>
-  <p style="margin-top:8px;font-size:13px;opacity:.85">补充了原清单未提及但关键的模块：Planning、Reranker、Guardrails、Observability、Embedding Cache、Event Bus 等</p>
+<!-- ======================== MASTHEAD ======================== -->
+<div class="masthead">
+  <div><span class="issue">● 第壹卷 · 创刊号</span> &nbsp;·&nbsp; 一本技术田野手册</div>
+  <div class="dots"><span class="dot red"></span><span class="dot"></span><span class="dot"></span></div>
+  <div class="date">贰零贰陆年 · 伍月号 &nbsp;·&nbsp; 免费流通</div>
+</div>
+
+<!-- ======================== HERO ======================== -->
+<header class="hero">
+  <div class="eyebrow">互动式架构图集 · 第 001 期</div>
+  <h1>
+    智能体<br>
+    <span class="ital">手册</span><span class="amp">。</span>
+  </h1>
+  <p class="deck">
+    一部献给当代 LLM Agent 的视觉指南 —— 写给那些想要看清它如何循环、
+    如何调用工具、如何记忆、以及如何在检索的幽微机械中，
+    终于显得有几分活气的读者。
+  </p>
+  <div class="byline">
+    <div><div class="label">章 · CHAPTERS</div><div class="val">共计柒篇</div></div>
+    <div><div class="label">图 · DIAGRAMS</div><div class="val">六幅可交互</div></div>
+    <div><div class="label">主题 · TOPICS</div><div class="val">RAG · 循环 · MCP · 记忆</div></div>
+    <div><div class="label">形制 · FORMAT</div><div class="val">Mermaid · 缩放 · 拖拽</div></div>
+  </div>
+  <div class="mark">↻ 滚动以翻阅 ↻</div>
 </header>
 
-<nav class="toc">
-  <h3>📑 目录</h3>
+<!-- ======================== CONTENTS ======================== -->
+<nav class="contents">
+  <div class="label">
+    目录
+    <span class="big">卷中篇目</span>
+  </div>
   <ol>
-    <li><a href="#s1">总体架构图（Overview）</a></li>
-    <li><a href="#s2">Agent Loop 时序图</a></li>
-    <li><a href="#s3">RAG 链路专题</a></li>
-    <li><a href="#s4">Tool / MCP / Skill 对比</a></li>
-    <li><a href="#s5">Memory 分层模型</a></li>
-    <li><a href="#s6">Multi-Agent 协作</a></li>
-    <li><a href="#s7">关键结论速查</a></li>
+    <li><a href="#s1">总揽 · 一图见全貌</a></li>
+    <li><a href="#s2">解剖 · Agent 循环之序</a></li>
+    <li><a href="#s3">检索 · RAG 的双管道</a></li>
+    <li><a href="#s4">工具 · Tool / MCP / Skill</a></li>
+    <li><a href="#s5">记忆 · 短与长的结构</a></li>
+    <li><a href="#s6">分工 · 多智能体社会</a></li>
+    <li><a href="#s7">六则 · 收官之语</a></li>
   </ol>
 </nav>
 
-<!-- ======================== 1 ======================== -->
-<section id="s1">
-  <h2><span class="num">1</span>总体架构图 Overview</h2>
-  <p class="lead">一张大图串联所有模块：用户层 → 接入层 → Agent 核心 → Memory → RAG → 工具层 → Multi-Agent → 可观测</p>
-  <div class="mermaid">
+<!-- ======================== § 1 ======================== -->
+<section class="article reveal" id="s1">
+  <aside class="chapter-mark">
+    <span class="num">01</span>
+    <span class="tag"><strong>总揽</strong>全栈地图</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      一图见全貌
+      <span class="en">— 单页之上，八层之深。</span>
+    </h2>
+    <p class="dek">
+      从用户的第一次敲击，到被审查后的最终回应，每一个运转的零件
+      都摊开在同一张纸上。从这里开始，也回到这里。
+    </p>
+    <div class="diagram-frame">
+      <div class="figure-caption">
+        <span class="fig">图 壹 · 系统总图</span>
+        <span class="meta">Flowchart · TB</span>
+      </div>
+      <div class="diagram-box">
+        <div class="mermaid">
 flowchart TB
-    User([👤 用户 Web/IDE/CLI/API])
+    User([用户 · Web/IDE/CLI/API])
 
-    subgraph GATEWAY["🚪 接入层 Gateway"]
+    subgraph GATEWAY["接入层 · GATEWAY"]
         direction LR
-        GW[API Gateway<br/>鉴权/限流/路由]
-        GR1[🛡️ Input Guardrails<br/>注入防御/敏感词/PII]
+        GW[API 网关<br/>鉴权 · 限流 · 路由]
+        GR1[输入护栏<br/>注入防御 · PII]
     end
 
-    subgraph AGENT["🧠 Agent 核心 Agent Loop"]
+    subgraph AGENT["AGENT 核心 · 循环"]
         direction TB
-        Orchestrator{{"Agent Orchestrator<br/>主循环调度器"}}
-        Planner[Planner/Router<br/>ReAct · Plan-and-Execute]
-        Reasoner[LLM Reasoner<br/>Claude/GPT/Kimi/智谱]
-        ToolDecide{需要工具?}
-        Executor[Tool Executor<br/>并发/超时/重试]
-        Reflector[Reflector<br/>自我反思/纠错]
+        Orchestrator{{"调度器 Orchestrator"}}
+        Planner[规划器 Planner<br/>ReAct · Plan-and-Execute]
+        Reasoner[LLM 推理器<br/>Claude · GPT · Kimi]
+        ToolDecide{是否需要工具?}
+        Executor[工具执行器<br/>并发 · 超时 · 重试]
+        Reflector[反思器<br/>自我纠错]
         FinalAns[[最终回答]]
         Orchestrator --> Planner --> Reasoner --> ToolDecide
         ToolDecide -- 是 --> Executor --> Reflector --> Reasoner
         ToolDecide -- 否 --> FinalAns
     end
 
-    subgraph MEM["🧩 Memory 记忆系统"]
+    subgraph MEM["记忆系统"]
         direction TB
-        STM[短期记忆 Short-Term<br/>最近 N 轮对话]
-        LTM[长期记忆 Long-Term<br/>总结压缩/事实记忆]
-        WM[工作记忆 Working Memory<br/>当前任务 Scratchpad]
-        Summarizer[Context Compressor<br/>摘要/裁剪]
+        STM[短期记忆<br/>最近 N 轮对话]
+        LTM[长期记忆<br/>压缩摘要与事实]
+        WM[工作记忆<br/>当前任务草稿]
+        Summarizer[压缩器]
         STM --> Summarizer --> LTM
     end
 
-    subgraph RAG["📚 RAG 检索增强"]
+    subgraph RAG["RAG · 检索增强"]
         direction TB
-        subgraph INGEST["📥 离线索引"]
+        subgraph INGEST["离线索引"]
             Doc[原始文档]
-            Chunk[切块 Chunking]
-            Embed[Embedding Model]
-            EmbCache[(Embedding Cache)]
+            Chunk[切块]
+            Embed[向量化]
+            EmbCache[(向量缓存)]
             Doc --> Chunk --> Embed --> EmbCache
         end
-        subgraph RETRIEVE["🔍 在线检索"]
-            Query[Query 改写<br/>HyDE/Multi-Query]
-            VDB[(向量数据库)]
-            BM25[(关键词 BM25)]
-            Hybrid[Hybrid Search]
-            Rerank[Reranker<br/>Cross-Encoder]
+        subgraph RETRIEVE["在线查询"]
+            Query[查询改写<br/>HyDE · Multi-Query]
+            VDB[(向量库)]
+            BM25[(关键词索引)]
+            Hybrid[混合检索]
+            Rerank[重排器<br/>Cross-Encoder]
             Query --> Hybrid
             VDB --> Hybrid
             BM25 --> Hybrid
             Hybrid --> Rerank
         end
-        EmbCache -. 写入 .-> VDB
+        EmbCache -.-> VDB
     end
 
-    subgraph TOOLS["🛠️ 工具层 Tools"]
+    subgraph TOOLS["工具层"]
         direction TB
-        subgraph COREKIT["核心工具集"]
+        subgraph COREKIT["六件套"]
             T1[bash]
             T2[read]
             T3[write]
@@ -161,268 +832,442 @@ flowchart TB
             T5[grep]
             T6[find]
         end
-        FCALL[Function Call<br/>本地业务函数]
-        MCP[🔌 MCP 远程协议<br/>Anthropic 标准]
-        SKILL[🎒 Skill 本地技能<br/>渐进加载]
+        FCALL[函数调用]
+        MCP[MCP · 远程]
+        SKILL[Skill · 本地]
     end
 
-    subgraph MULTI["👥 Multi-Agent 多智能体"]
+    subgraph MULTI["多智能体"]
         direction LR
-        MainA[Main Agent]
-        SubA1[Research]
-        SubA2[Coding]
-        SubA3[Review]
-        Bus[[Event Bus<br/>上下文隔离]]
+        MainA[主智能体]
+        SubA1[研究员]
+        SubA2[编码员]
+        SubA3[审查员]
+        Bus[[消息总线]]
         MainA <--> Bus
         Bus <--> SubA1
         Bus <--> SubA2
         Bus <--> SubA3
     end
 
-    subgraph OBS["📊 可观测与治理"]
+    subgraph OBS["可观测性"]
         direction LR
-        Trace[Tracing]
-        Eval[Evaluation]
-        GR2[🛡️ Output Guardrails]
-        Cost[Cost & Token]
+        Trace[链路追踪]
+        Eval[效果评估]
+        GR2[输出护栏]
+        Cost[成本计量]
     end
 
     User --> GW --> GR1 --> Orchestrator
-    Reasoner <-.读写.-> WM
-    Reasoner <-.读取.-> STM
-    Reasoner <-.召回.-> LTM
+    Reasoner <-.-> WM
+    Reasoner <-.-> STM
+    Reasoner <-.-> LTM
     Executor --> COREKIT
     Executor --> FCALL
     Executor --> MCP
     Executor --> SKILL
-    Reasoner -. 检索 .-> Query
-    Rerank -. Top-K .-> Reasoner
-    Orchestrator <-.分派/汇总.-> MainA
+    Reasoner -.-> Query
+    Rerank -.-> Reasoner
+    Orchestrator <-.-> MainA
     FinalAns --> GR2 --> User
-    AGENT -.埋点.-> Trace
-    AGENT -.计费.-> Cost
+    AGENT -.-> Trace
+    AGENT -.-> Cost
     Trace --> Eval
-
-    classDef user fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
-    classDef core fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
-    classDef mem fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px
-    classDef rag fill:#E8F5E9,stroke:#388E3C,stroke-width:2px
-    classDef tool fill:#FCE4EC,stroke:#C2185B,stroke-width:2px
-    classDef multi fill:#E0F7FA,stroke:#00838F,stroke-width:2px
-    classDef obs fill:#F5F5F5,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5
-
-    class User user
-    class Orchestrator,Planner,Reasoner,Executor,Reflector,ToolDecide,FinalAns core
-    class STM,LTM,WM,Summarizer mem
-    class Doc,Chunk,Embed,EmbCache,Query,VDB,BM25,Hybrid,Rerank rag
-    class T1,T2,T3,T4,T5,T6,FCALL,MCP,SKILL tool
-    class MainA,SubA1,SubA2,SubA3,Bus multi
-    class Trace,Eval,GR1,GR2,Cost obs
+        </div>
+        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ======================== 2 ======================== -->
-<section id="s2">
-  <h2><span class="num">2</span>Agent Loop 时序图</h2>
-  <p class="lead">一次典型请求中各模块的协作顺序</p>
-  <div class="mermaid">
+<!-- ======================== § 2 ======================== -->
+<section class="article reveal" id="s2">
+  <aside class="chapter-mark">
+    <span class="num">02</span>
+    <span class="tag"><strong>时序</strong>一次请求的一生</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      Agent 循环之序
+      <span class="en">— 一次提问背后的编舞。</span>
+    </h2>
+    <p class="dek">
+      从提示词到最终回答之间，有八位参演者的协作。
+      这里给出乐谱，依序演奏。
+    </p>
+    <div class="diagram-frame">
+      <div class="figure-caption">
+        <span class="fig">图 贰 · 时序图</span>
+        <span class="meta">Sequence Diagram</span>
+      </div>
+      <div class="diagram-box">
+        <div class="mermaid">
 sequenceDiagram
     autonumber
     participant U as 用户
-    participant GW as Gateway+Guardrails
-    participant O as Orchestrator
-    participant M as Memory
-    participant L as LLM Reasoner
+    participant GW as 网关
+    participant O as 调度器
+    participant M as 记忆
+    participant L as LLM 推理器
     participant R as RAG
-    participant T as Tool Executor
-    participant S as Sub-Agent
+    participant T as 工具执行器
+    participant S as 子智能体
 
-    U->>GW: 提问/指令
+    U->>GW: 输入提问
     GW->>O: 清洗后请求
-    O->>M: 拉取短期+长期记忆
-    M-->>O: Context 摘要
+    O->>M: 召回记忆
+    M-->>O: 上下文摘要
     O->>L: 组装 Prompt
 
-    loop Agent Loop 直到无需工具
-        L->>L: 推理/规划
+    loop 直到无需工具
+        L->>L: 推理 · 规划
         alt 需要知识
-            L->>R: 检索 Query
-            R->>R: 改写→向量→BM25→Rerank
+            L->>R: 检索查询
+            R->>R: 改写 · 检索 · 重排
             R-->>L: Top-K 片段
         else 需要工具
-            L->>T: tool_call(name, args)
-            alt MCP 远程
-                T->>T: 调 MCP Server
-            else 本地 Skill/Function
+            L->>T: tool_call
+            alt 远程 MCP
+                T->>T: 调用 MCP 服务
+            else 本地 Skill
                 T->>T: 执行本地脚本
-            else 复杂子任务
-                T->>S: 派发子 Agent
+            else 子任务
+                T->>S: 派发子智能体
                 S-->>T: 压缩后的结果
             end
-            T-->>L: Observation
+            T-->>L: 返回观察
         else 可直接回答
-            L-->>O: Final Answer
+            L-->>O: 最终回答
         end
     end
 
-    O->>M: 写入新记忆/摘要压缩
+    O->>M: 写入新记忆
     O->>GW: 输出审查
-    GW-->>U: 最终回答
+    GW-->>U: 返回回答
+        </div>
+        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ======================== 3 ======================== -->
-<section id="s3">
-  <h2><span class="num">3</span>RAG 链路专题</h2>
-  <p class="lead">离线建索引 + 在线查询两条链路</p>
-  <div class="mermaid">
+<!-- ======================== § 3 ======================== -->
+<section class="article reveal" id="s3">
+  <aside class="chapter-mark">
+    <span class="num">03</span>
+    <span class="tag"><strong>检索</strong>先搜再答</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      RAG 的双管道
+      <span class="en">— 离线建索引，在线做检索。</span>
+    </h2>
+    <p class="dek">
+      大多数实用 Agent 背后不动声色的秘密：先搜，再答。
+      两条流水线，一件正事。
+    </p>
+    <div class="diagram-frame">
+      <div class="figure-caption">
+        <span class="fig">图 叁 · 双管道示意</span>
+        <span class="meta">Flowchart · LR</span>
+      </div>
+      <div class="diagram-box">
+        <div class="mermaid">
 flowchart LR
-    subgraph OFFLINE["📦 离线 建索引"]
-        A[原始文档] --> B[切块 Chunk]
-        B --> C[Embedding API<br/>非 LLM API]
+    subgraph OFFLINE["离线 · 建索引"]
+        A[原始文档] --> B[切块]
+        B --> C[向量化 API]
         C --> D[(向量库)]
         B --> E[(BM25 索引)]
     end
 
-    subgraph ONLINE["⚡ 在线 查询"]
-        Q[用户 Query] --> QR[Query Rewrite<br/>HyDE/Multi-Query]
+    subgraph ONLINE["在线 · 查询"]
+        Q[用户查询] --> QR[查询改写<br/>HyDE · Multi-Query]
         QR --> VS[向量检索]
         QR --> KS[关键词检索]
         D --> VS
         E --> KS
-        VS --> FU[Hybrid 融合 RRF]
+        VS --> FU[混合融合 · RRF]
         KS --> FU
-        FU --> RR[Reranker<br/>Cross-Encoder]
+        FU --> RR[重排器<br/>Cross-Encoder]
         RR --> CTX[Top-K 上下文]
         CTX --> P[Prompt 组装]
         P --> LLM[LLM 生成]
         LLM --> ANS[回答 + 引用]
     end
-
-    style OFFLINE fill:#E8F5E9
-    style ONLINE fill:#FFF3E0
+        </div>
+        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ======================== 4 ======================== -->
-<section id="s4">
-  <h2><span class="num">4</span>Tool / MCP / Skill 对比</h2>
-  <p class="lead">三种工具形态的核心差异</p>
-  <table>
-    <thead>
-      <tr><th>维度</th><th>Function Call (Tool)</th><th>MCP</th><th>Skill</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><b>调用方式</b></td><td>本地函数调用</td><td>远程标准协议（Anthropic）</td><td>本地渐进式加载</td></tr>
-      <tr><td><b>核心价值</b></td><td>扩展 LLM 执行能力</td><td>"即插即用"、跨应用复用</td><td>解决 MCP 工具过多导致 token 浪费</td></tr>
-      <tr><td><b>加载时机</b></td><td>全量注入 Prompt</td><td>全量注入 Prompt</td><td>按需加载 metadata，用到才展开</td></tr>
-      <tr><td><b>适用场景</b></td><td>简单函数、业务定制</td><td>生态化、跨厂商</td><td>复杂技能包、多步骤代码执行</td></tr>
-      <tr><td><b>代表</b></td><td>OpenAI function calling</td><td>Claude Desktop、Cursor</td><td>Claude Agent Skills</td></tr>
-    </tbody>
-  </table>
-  <blockquote>
-    <strong>经验法则：</strong> <code>bash / read / write / edit / grep / find</code> 这 6 个基础工具就能覆盖 80%+ 场景。<br/>
-    <strong>Vercel 实践：</strong> 移除 80% 的工具，text-to-sql 准确率反而从 80% → 100%。
-  </blockquote>
+<!-- ======================== § 4 ======================== -->
+<section class="article reveal" id="s4">
+  <aside class="chapter-mark">
+    <span class="num">04</span>
+    <span class="tag"><strong>工具</strong>三者比较</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      Tool · MCP · Skill
+      <span class="en">— 三种赋予 Agent 双手的方式。</span>
+    </h2>
+    <p class="dek">
+      函数调用近而便宜，MCP 远而通用，Skill 懒而节俭。
+      知其所需，方能择其所用。
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>维度</th>
+          <th>Function Call</th>
+          <th>MCP</th>
+          <th>Skill</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>调用方式</td>
+          <td>本地函数调用</td>
+          <td>远程标准协议（Anthropic）</td>
+          <td>本地渐进式加载</td>
+        </tr>
+        <tr>
+          <td>核心价值</td>
+          <td>扩展 LLM 执行能力</td>
+          <td>即插即用 · 跨应用复用</td>
+          <td>避免过多工具带来的 token 浪费</td>
+        </tr>
+        <tr>
+          <td>加载时机</td>
+          <td>全量注入 Prompt</td>
+          <td>全量注入 Prompt</td>
+          <td>先加载 metadata，用到才展开</td>
+        </tr>
+        <tr>
+          <td>适用场景</td>
+          <td>简单业务函数</td>
+          <td>跨厂商生态</td>
+          <td>复杂多步骤的技能包</td>
+        </tr>
+        <tr>
+          <td>代表实现</td>
+          <td>OpenAI function calling</td>
+          <td>Claude Desktop · Cursor</td>
+          <td>Claude Agent Skills</td>
+        </tr>
+      </tbody>
+    </table>
+    <blockquote>
+      <strong>经验之规</strong>
+      基础六件套 <code>bash / read / write / edit / grep / find</code>
+      覆盖了 Agent 日常所需的八成以上。Vercel 的经验广为流传 ——
+      他们砍掉了八成工具，结果 text-to-SQL 的准确率从 80% 升到了 100%。
+    </blockquote>
+  </div>
 </section>
 
-<!-- ======================== 5 ======================== -->
-<section id="s5">
-  <h2><span class="num">5</span>Memory 分层模型</h2>
-  <p class="lead">工作记忆 · 短期 · 长期（Episodic + Semantic + Procedural）</p>
-  <div class="mermaid">
+<!-- ======================== § 5 ======================== -->
+<section class="article reveal" id="s5">
+  <aside class="chapter-mark">
+    <span class="num">05</span>
+    <span class="tag"><strong>记忆</strong>短与长</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      短与长的结构
+      <span class="en">— 留下什么，压缩什么，遗忘什么。</span>
+    </h2>
+    <p class="dek">
+      短期记忆承载一段对话，长期记忆承载一个人。
+      在两者之间，住着一位压缩器 —— 决定谁是谁。
+    </p>
+    <div class="diagram-frame">
+      <div class="figure-caption">
+        <span class="fig">图 肆 · 记忆层级</span>
+        <span class="meta">Flowchart · TB</span>
+      </div>
+      <div class="diagram-box">
+        <div class="mermaid">
 flowchart TB
-    Input[本轮输入] --> WM[🧠 Working Memory<br/>当前任务 Scratchpad<br/>临时笔记/中间结果]
-    WM --> STM[📝 Short-Term<br/>最近 N 轮对话原文]
-    STM -- 超窗口 --> SUM[Compressor<br/>摘要/实体抽取]
-    SUM --> LTM1[📚 Episodic<br/>事件记忆<br/>上次用户说...]
-    SUM --> LTM2[📖 Semantic<br/>事实记忆<br/>用户偏好/画像]
-    SUM --> LTM3[⚙️ Procedural<br/>程序记忆<br/>常用操作模式]
+    Input[本轮输入] --> WM[工作记忆<br/>当前任务草稿]
+    WM --> STM[短期记忆<br/>最近 N 轮]
+    STM -- 溢出 --> SUM[压缩器<br/>摘要 · 实体抽取]
+    SUM --> LTM1[情景记忆<br/>事件]
+    SUM --> LTM2[语义记忆<br/>事实 · 画像]
+    SUM --> LTM3[程序记忆<br/>习惯模式]
 
     LTM1 --> VDB[(向量库)]
-    LTM2 --> KG[(知识图谱/KV)]
+    LTM2 --> KG[(知识图谱)]
     LTM3 --> FS[(规则库)]
 
     VDB -. 召回 .-> STM
     KG -. 召回 .-> STM
     FS -. 召回 .-> STM
-
-    style WM fill:#FFF9C4
-    style STM fill:#FFE0B2
-    style LTM1 fill:#F8BBD0
-    style LTM2 fill:#F8BBD0
-    style LTM3 fill:#F8BBD0
+        </div>
+        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+      </div>
+    </div>
+    <div class="formula">
+      Memory <span>=</span> 短期 <span>(</span>逐字<span>)</span> <span>+</span> 长期 <span>(</span>压缩<span>)</span>
+    </div>
   </div>
-  <div class="formula">Memory = <span>短期（完整原文）</span> + <span>长期（压缩后的摘要/事实/程序）</span></div>
 </section>
 
-<!-- ======================== 6 ======================== -->
-<section id="s6">
-  <h2><span class="num">6</span>Multi-Agent 协作模式</h2>
-  <p class="lead">主-子 Agent 的上下文隔离机制</p>
-  <div class="mermaid">
+<!-- ======================== § 6 ======================== -->
+<section class="article reveal" id="s6">
+  <aside class="chapter-mark">
+    <span class="num">06</span>
+    <span class="tag"><strong>分工</strong>隔离之美</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      多智能体社会
+      <span class="en">— 一个主帅，几位斥候。</span>
+    </h2>
+    <p class="dek">
+      单 Agent 足以胜任大多数场景。若还不够，答案很少是
+      "更多的 Agent"，而是"更好的隔离"。
+    </p>
+    <div class="diagram-frame">
+      <div class="figure-caption">
+        <span class="fig">图 伍 · 派发模型</span>
+        <span class="meta">Flowchart · TB</span>
+      </div>
+      <div class="diagram-box">
+        <div class="mermaid">
 flowchart TB
-    User([用户请求]) --> Main[🎯 Main Agent<br/>主协调者<br/>持有完整上下文]
+    User([用户请求]) --> Main[主智能体<br/>协调者<br/>持有完整上下文]
 
-    Main -->|派发子任务| Sub1[🔬 Research Agent<br/>独立上下文]
-    Main -->|派发子任务| Sub2[💻 Coding Agent<br/>独立上下文]
-    Main -->|派发子任务| Sub3[✅ Review Agent<br/>独立上下文]
+    Main -->|派发| Sub1[研究员<br/>独立上下文]
+    Main -->|派发| Sub2[编码员<br/>独立上下文]
+    Main -->|派发| Sub3[审查员<br/>独立上下文]
 
-    Sub1 -->|只回传压缩结果| Main
-    Sub2 -->|只回传压缩结果| Main
-    Sub3 -->|只回传压缩结果| Main
+    Sub1 -->|压缩后的结果| Main
+    Sub2 -->|压缩后的结果| Main
+    Sub3 -->|压缩后的结果| Main
 
     Main --> Final([汇总最终答案])
 
-    Note1[📌 关键价值<br/>1. 上下文隔离<br/>2. 主上下文不被工具细节污染<br/>3. 支持并行加速]
-
-    style Main fill:#FFCDD2
-    style Sub1 fill:#C8E6C9
-    style Sub2 fill:#C8E6C9
-    style Sub3 fill:#C8E6C9
-    style Note1 fill:#FFF9C4,stroke-dasharray: 3 3
+    Note1[为何如此<br/>· 上下文隔离<br/>· 主上下文不被工具噪声污染<br/>· 天然支持并行]
+        </div>
+        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+      </div>
+    </div>
+    <blockquote>
+      <strong>告诫</strong>
+      单 Agent 已能应付几乎所有任务。只有当工具调用链路漫长，
+      噪声开始淹没主上下文的信号时，方可考虑引入多智能体 ——
+      它是最后一步，不是第一步。
+    </blockquote>
   </div>
-  <blockquote>
-    <strong>经验：</strong> 单 Agent 够用大部分场景。只有当工具调用链路很长、上下文会被 tool 噪音淹没时，才上 Multi-Agent。
-  </blockquote>
 </section>
 
-<!-- ======================== 7 ======================== -->
-<section id="s7">
-  <h2><span class="num">7</span>关键结论速查</h2>
-  <ul class="keyp">
-    <li><b>① Agent 本质</b>Chatbot + Tools + Loop</li>
-    <li><b>② RAG 本质</b>先搜再答，核心 = Embedding + 向量库 + Rerank</li>
-    <li><b>③ 工具选型</b>少即是多，6 个基础工具 &gt; 80 个花哨工具</li>
-    <li><b>④ Memory</b>短期原文 + 长期压缩</li>
-    <li><b>⑤ Multi-Agent</b>不是银弹，先把单 Agent 打磨好</li>
-    <li><b>⑥ 生产级 Agent</b>Guardrails + Observability 是最后一公里</li>
-  </ul>
+<!-- ======================== § 7 ======================== -->
+<section class="article reveal" id="s7">
+  <aside class="chapter-mark">
+    <span class="num">07</span>
+    <span class="tag"><strong>六则</strong>临别赠言</span>
+  </aside>
+  <div class="article-body">
+    <h2>
+      收官之语
+      <span class="en">— 六句话，带它回家。</span>
+    </h2>
+    <p class="dek">
+      纵使忘掉本册的其他一切，这六条顽固的心法，
+      依然足以护佑你走得更远。
+    </p>
+    <ul class="keypoints">
+      <li>
+        <span class="no">其 · 壹</span>
+        <b>Agent 之魂</b>
+        <span class="desc">Chatbot + Tools + Loop。除此之外，并无玄学。</span>
+      </li>
+      <li>
+        <span class="no">其 · 贰</span>
+        <b>检索为本</b>
+        <span class="desc">先搜再答。Embedding、向量库与重排器，才是真正在干活的三位。</span>
+      </li>
+      <li>
+        <span class="no">其 · 叁</span>
+        <b>少即是多</b>
+        <span class="desc">六件精挑细选的工具，胜过八十件花哨堆砌。克制本身就是一种功能。</span>
+      </li>
+      <li>
+        <span class="no">其 · 肆</span>
+        <b>记忆复利</b>
+        <span class="desc">要紧处逐字留存，其余压为恒久事实。唯此，记忆方能生息。</span>
+      </li>
+      <li>
+        <span class="no">其 · 伍</span>
+        <b>慎用分身</b>
+        <span class="desc">一个单 Agent 打磨到位，胜过三个仓促并行。多智能体不是万灵药。</span>
+      </li>
+      <li>
+        <span class="no">其 · 陆</span>
+        <b>最后一公里</b>
+        <span class="desc">护栏与可观测性并非可选项。生产级系统，从它们开始。</span>
+      </li>
+    </ul>
+  </div>
 </section>
 
+<!-- ======================== FOOTER ======================== -->
 <footer>
-  📐 Generated with Mermaid + svg-pan-zoom · 每张图支持缩放/平移/全屏/下载 SVG
+  <div class="colophon">
+    以 Fraunces · 思源宋体 · JetBrains Mono 排印
+    &nbsp;·&nbsp; 由 Mermaid 与 svg-pan-zoom 绘制
+    &nbsp;·&nbsp; 由你的浏览器印行
+  </div>
+  <div class="end">— 终 —</div>
+  <div class="tech">智能体手册 · 第壹卷 · 无版权保留 · 自由传阅</div>
 </footer>
 
-</div>
-
+<!-- ======================== SCRIPT ======================== -->
 <script>
-  // 1. 初始化 Mermaid（先不 startOnLoad，手动渲染以便控制时机）
   mermaid.initialize({
     startOnLoad: false,
-    theme: 'default',
+    theme: 'base',
     securityLevel: 'loose',
-    flowchart: { curve: 'basis', htmlLabels: true, useMaxWidth: false },
-    sequence: { useMaxWidth: false, showSequenceNumbers: false },
+    flowchart: { curve: 'linear', htmlLabels: true, useMaxWidth: false, padding: 20 },
+    sequence: { useMaxWidth: false, showSequenceNumbers: false, wrap: true },
     themeVariables: {
-      fontFamily: '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif',
-      primaryColor: '#eff6ff',
-      primaryBorderColor: '#3b82f6',
-      lineColor: '#64748b'
+      fontFamily: '"Noto Serif SC", "JetBrains Mono", ui-monospace, monospace',
+      fontSize: '13px',
+      /* editorial palette */
+      primaryColor: '#f0ebe0',
+      primaryTextColor: '#191817',
+      primaryBorderColor: '#191817',
+      lineColor: '#3a3632',
+      secondaryColor: '#e6dfcf',
+      tertiaryColor: '#ffffff',
+      /* subgraph backgrounds */
+      clusterBkg: 'transparent',
+      clusterBorder: '#e8491b',
+      /* edge labels */
+      edgeLabelBackground: '#f0ebe0',
+      /* notes & actors (sequence) */
+      noteBkgColor: '#ffe680',
+      noteTextColor: '#191817',
+      noteBorderColor: '#191817',
+      actorBkg: '#191817',
+      actorTextColor: '#f0ebe0',
+      actorBorder: '#191817',
+      actorLineColor: '#7a726a',
+      signalColor: '#e8491b',
+      signalTextColor: '#191817',
+      labelBoxBkgColor: '#ffe680',
+      labelBoxBorderColor: '#191817',
+      labelTextColor: '#191817',
+      loopTextColor: '#1a5c42',
+      activationBkgColor: '#e6dfcf',
+      activationBorderColor: '#191817',
+      sequenceNumberColor: '#f0ebe0'
     }
   });
 
-  // 2. 渲染完成后，给每个 .mermaid 元素包装工具栏 + svg-pan-zoom
   async function enhanceDiagrams(){
     const nodes = document.querySelectorAll('.mermaid');
     for(let i=0;i<nodes.length;i++){
@@ -433,89 +1278,72 @@ flowchart TB
         const {svg} = await mermaid.render(id, code);
         el.innerHTML = svg;
       }catch(err){
-        el.innerHTML = '<pre style="color:#dc2626">渲染失败: '+err.message+'</pre>';
+        el.innerHTML = '<pre style="color:#e8491b;font-family:var(--f-mono);padding:20px">RENDER ERROR: '+err.message+'</pre>';
         continue;
       }
       wrapWithToolbar(el, i);
     }
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
   }
 
   function wrapWithToolbar(mermaidEl, idx){
-    // 包一层 diagram-box
-    const box = document.createElement('div');
-    box.className = 'diagram-box';
-    mermaidEl.parentNode.insertBefore(box, mermaidEl);
-    box.appendChild(mermaidEl);
+    const frame = mermaidEl.closest('.diagram-frame');
+    if(!frame) return;
 
-    // 提示
-    const hint = document.createElement('div');
-    hint.className = 'diagram-hint';
-    hint.textContent = '💡 滚轮缩放 · 拖拽平移 · 双击重置';
-    box.appendChild(hint);
-
-    // 工具栏
     const toolbar = document.createElement('div');
     toolbar.className = 'diagram-toolbar';
     toolbar.innerHTML = `
-      <button data-act="in"  title="放大 (+)">➕</button>
-      <button data-act="out" title="缩小 (-)">➖</button>
+      <button data-act="in"  title="Zoom In">+</button>
+      <button data-act="out" title="Zoom Out">−</button>
       <span class="zoom-level" data-level>100%</span>
       <div class="sep"></div>
-      <button data-act="fit"   title="适应窗口">⛶</button>
-      <button data-act="reset" title="重置 (R)">↺</button>
+      <button data-act="fit"   title="Fit">◱</button>
+      <button data-act="reset" title="Reset">↺</button>
       <div class="sep"></div>
-      <button data-act="full"  title="全屏">🗖</button>
-      <button data-act="svg"   title="下载 SVG">💾</button>
+      <button data-act="full"  title="Fullscreen">⛶</button>
+      <button data-act="svg"   title="Download SVG">↓</button>
     `;
-    box.appendChild(toolbar);
+    frame.appendChild(toolbar);
 
-    // 初始化 svg-pan-zoom
     const svg = mermaidEl.querySelector('svg');
     if(!svg) return;
-    // 让 svg 充满容器
     svg.setAttribute('width','100%');
     svg.style.maxWidth='100%';
-    svg.style.height='500px';
+    svg.style.height='520px';
 
     const panZoom = svgPanZoom(svg,{
-      zoomEnabled:true,
-      controlIconsEnabled:false,
-      fit:true,
-      center:true,
-      minZoom:.3,
-      maxZoom:8,
+      zoomEnabled:true, controlIconsEnabled:false,
+      fit:true, center:true,
+      minZoom:.3, maxZoom:8,
       zoomScaleSensitivity:.35,
       dblClickZoomEnabled:false,
-      onZoom: (z)=>{
-        const lvl = toolbar.querySelector('[data-level]');
-        if(lvl) lvl.textContent = Math.round(z*100)+'%';
-      }
+      onZoom:(z)=>{ const lvl = toolbar.querySelector('[data-level]'); if(lvl) lvl.textContent = Math.round(z*100)+'%'; }
     });
 
-    // 双击重置
     mermaidEl.addEventListener('dblclick',()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
 
-    // 工具栏事件
     toolbar.addEventListener('click',(e)=>{
-      const btn = e.target.closest('button');
-      if(!btn) return;
+      const btn = e.target.closest('button'); if(!btn) return;
       const act = btn.dataset.act;
       if(act==='in') panZoom.zoomIn();
       else if(act==='out') panZoom.zoomOut();
       else if(act==='fit'){ panZoom.fit(); panZoom.center(); }
       else if(act==='reset'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); }
       else if(act==='full'){
-        box.classList.toggle('fullscreen');
-        document.body.classList.toggle('has-fullscreen', box.classList.contains('fullscreen'));
+        frame.classList.toggle('fullscreen');
+        document.body.classList.toggle('has-fullscreen', frame.classList.contains('fullscreen'));
         setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },120);
       }
-      else if(act==='svg'){ downloadSvg(svg, 'diagram-'+(idx+1)+'.svg'); }
+      else if(act==='svg'){ downloadSvg(svg, 'agent-manual-fig-'+String(idx+1).padStart(2,'0')+'.svg'); }
     });
 
-    // 键盘：全屏时支持 ESC / R
     document.addEventListener('keydown',(e)=>{
-      if(!box.classList.contains('fullscreen')) return;
-      if(e.key==='Escape'){ box.classList.remove('fullscreen'); document.body.classList.remove('has-fullscreen'); setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },100); }
+      if(!frame.classList.contains('fullscreen')) return;
+      if(e.key==='Escape'){ frame.classList.remove('fullscreen'); document.body.classList.remove('has-fullscreen'); setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },100); }
       if(e.key==='r'||e.key==='R'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); }
     });
   }
@@ -526,12 +1354,10 @@ flowchart TB
     const src = '<?xml version="1.0" encoding="UTF-8"?>\n'+clone.outerHTML;
     const blob = new Blob([src],{type:'image/svg+xml;charset=utf-8'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download=filename; a.click();
+    const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
     setTimeout(()=>URL.revokeObjectURL(url),500);
   }
 
-  // 等 Mermaid & svg-pan-zoom 都加载完
   window.addEventListener('load', enhanceDiagrams);
 </script>
 </body>
