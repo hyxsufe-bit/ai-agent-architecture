@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Agent 完整架构图</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#ffffff;
+    --ink:#1e293b;
+    --muted:#64748b;
+    --brand:#3b82f6;
+    --brand2:#8b5cf6;
+    --border:#e2e8f0;
+    --code-bg:#f8fafc;
+    --accent:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 100%);line-height:1.7}
+  .wrap{max-width:1280px;margin:0 auto;padding:32px 24px 80px}
+  header{background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 100%);color:#fff;border-radius:16px;padding:36px 40px;margin-bottom:32px;box-shadow:0 10px 30px rgba(59,130,246,.25)}
+  header h1{margin:0 0 8px;font-size:30px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:15px}
+  nav.toc{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 28px;margin-bottom:32px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  nav.toc h3{margin:0 0 12px;font-size:15px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  nav.toc ol{margin:0;padding-left:22px;columns:2;column-gap:32px}
+  nav.toc li{margin:6px 0}
+  nav.toc a{color:var(--brand);text-decoration:none;font-weight:500}
+  nav.toc a:hover{text-decoration:underline}
+  section{background:var(--panel);border-radius:14px;padding:28px 32px;margin-bottom:28px;box-shadow:0 4px 14px rgba(0,0,0,.05);border:1px solid var(--border)}
+  section h2{margin:0 0 18px;font-size:22px;padding-bottom:12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px}
+  section h2 .num{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+  section p.lead{color:var(--muted);margin:0 0 18px;font-size:14px}
+  /* 图表容器 */
+  .diagram-box{position:relative;background:#fdfdfd;border:1px solid var(--border);border-radius:10px;margin-top:8px;overflow:hidden}
+  .diagram-toolbar{position:absolute;top:10px;right:10px;z-index:10;display:flex;gap:4px;background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,.08);backdrop-filter:blur(6px)}
+  .diagram-toolbar button{border:none;background:transparent;cursor:pointer;width:30px;height:30px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#475569;font-size:14px;transition:all .15s}
+  .diagram-toolbar button:hover{background:#eff6ff;color:var(--brand)}
+  .diagram-toolbar button:active{transform:scale(.92)}
+  .diagram-toolbar .sep{width:1px;background:var(--border);margin:4px 2px}
+  .diagram-toolbar .zoom-level{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;padding:0 6px;min-width:42px;justify-content:center;font-family:monospace}
+  .diagram-hint{position:absolute;left:12px;bottom:10px;z-index:5;font-size:11px;color:var(--muted);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:4px;pointer-events:none;opacity:.8}
+  .mermaid{padding:24px 16px;text-align:center;cursor:grab;min-height:200px}
+  .mermaid:active{cursor:grabbing}
+  .mermaid svg{max-width:none !important;height:auto !important}
+
+  /* 全屏模式 */
+  .diagram-box.fullscreen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;border-radius:0;margin:0;background:#fff}
+  .diagram-box.fullscreen .mermaid{height:100vh;padding:60px 20px 20px}
+  body.has-fullscreen{overflow:hidden}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  table th,table td{border:1px solid var(--border);padding:10px 14px;text-align:left;vertical-align:top}
+  table th{background:#f1f5f9;font-weight:600;color:#334155}
+  table tr:nth-child(even) td{background:#fafbfc}
+  code{background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:"SF Mono",Consolas,Monaco,monospace;font-size:13px;color:#be185d}
+  blockquote{margin:14px 0;padding:12px 18px;background:#fffbeb;border-left:4px solid var(--accent);border-radius:6px;color:#78350f;font-size:14px}
+  blockquote strong{color:#92400e}
+  ul.keyp{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  ul.keyp li{background:linear-gradient(135deg,#eff6ff,#f3e8ff);border:1px solid #ddd6fe;border-radius:10px;padding:14px 18px;font-size:14px}
+  ul.keyp li b{color:var(--brand2);display:block;margin-bottom:4px;font-size:15px}
+  .formula{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:8px;font-family:"SF Mono",Consolas,monospace;font-size:14px;text-align:center;margin:12px 0}
+  .formula span{color:#fbbf24}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:40px;padding:20px}
+  .tag{display:inline-block;background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:12px;font-size:12px;margin-right:6px}
+  details{margin:10px 0}
+  summary{cursor:pointer;font-weight:600;color:var(--brand);padding:6px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>🧠 AI Agent 完整架构图</h1>
+  <p>整合 RAG · Agent Loop · Tool/MCP/Skill · Memory · Multi-Agent 等核心概念的一张总览图</p>
+  <p style="margin-top:8px;font-size:13px;opacity:.85">补充了原清单未提及但关键的模块：Planning、Reranker、Guardrails、Observability、Embedding Cache、Event Bus 等</p>
+</header>
+
+<nav class="toc">
+  <h3>📑 目录</h3>
+  <ol>
+    <li><a href="#s1">总体架构图（Overview）</a></li>
+    <li><a href="#s2">Agent Loop 时序图</a></li>
+    <li><a href="#s3">RAG 链路专题</a></li>
+    <li><a href="#s4">Tool / MCP / Skill 对比</a></li>
+    <li><a href="#s5">Memory 分层模型</a></li>
+    <li><a href="#s6">Multi-Agent 协作</a></li>
+    <li><a href="#s7">关键结论速查</a></li>
+  </ol>
+</nav>
+
+<!-- ======================== 1 ======================== -->
+<section id="s1">
+  <h2><span class="num">1</span>总体架构图 Overview</h2>
+  <p class="lead">一张大图串联所有模块：用户层 → 接入层 → Agent 核心 → Memory → RAG → 工具层 → Multi-Agent → 可观测</p>
+  <div class="mermaid">
+flowchart TB
+    User([👤 用户 Web/IDE/CLI/API])
+
+    subgraph GATEWAY["🚪 接入层 Gateway"]
+        direction LR
+        GW[API Gateway<br/>鉴权/限流/路由]
+        GR1[🛡️ Input Guardrails<br/>注入防御/敏感词/PII]
+    end
+
+    subgraph AGENT["🧠 Agent 核心 Agent Loop"]
+        direction TB
+        Orchestrator{{"Agent Orchestrator<br/>主循环调度器"}}
+        Planner[Planner/Router<br/>ReAct · Plan-and-Execute]
+        Reasoner[LLM Reasoner<br/>Claude/GPT/Kimi/智谱]
+        ToolDecide{需要工具?}
+        Executor[Tool Executor<br/>并发/超时/重试]
+        Reflector[Reflector<br/>自我反思/纠错]
+        FinalAns[[最终回答]]
+        Orchestrator --> Planner --> Reasoner --> ToolDecide
+        ToolDecide -- 是 --> Executor --> Reflector --> Reasoner
+        ToolDecide -- 否 --> FinalAns
+    end
+
+    subgraph MEM["🧩 Memory 记忆系统"]
+        direction TB
+        STM[短期记忆 Short-Term<br/>最近 N 轮对话]
+        LTM[长期记忆 Long-Term<br/>总结压缩/事实记忆]
+        WM[工作记忆 Working Memory<br/>当前任务 Scratchpad]
+        Summarizer[Context Compressor<br/>摘要/裁剪]
+        STM --> Summarizer --> LTM
+    end
+
+    subgraph RAG["📚 RAG 检索增强"]
+        direction TB
+        subgraph INGEST["📥 离线索引"]
+            Doc[原始文档]
+            Chunk[切块 Chunking]
+            Embed[Embedding Model]
+            EmbCache[(Embedding Cache)]
+            Doc --> Chunk --> Embed --> EmbCache
+        end
+        subgraph RETRIEVE["🔍 在线检索"]
+            Query[Query 改写<br/>HyDE/Multi-Query]
+            VDB[(向量数据库)]
+            BM25[(关键词 BM25)]
+            Hybrid[Hybrid Search]
+            Rerank[Reranker<br/>Cross-Encoder]
+            Query --> Hybrid
+            VDB --> Hybrid
+            BM25 --> Hybrid
+            Hybrid --> Rerank
+        end
+        EmbCache -. 写入 .-> VDB
+    end
+
+    subgraph TOOLS["🛠️ 工具层 Tools"]
+        direction TB
+        subgraph COREKIT["核心工具集"]
+            T1[bash]
+            T2[read]
+            T3[write]
+            T4[edit]
+            T5[grep]
+            T6[find]
+        end
+        FCALL[Function Call<br/>本地业务函数]
+        MCP[🔌 MCP 远程协议<br/>Anthropic 标准]
+        SKILL[🎒 Skill 本地技能<br/>渐进加载]
+    end
+
+    subgraph MULTI["👥 Multi-Agent 多智能体"]
+        direction LR
+        MainA[Main Agent]
+        SubA1[Research]
+        SubA2[Coding]
+        SubA3[Review]
+        Bus[[Event Bus<br/>上下文隔离]]
+        MainA <--> Bus
+        Bus <--> SubA1
+        Bus <--> SubA2
+        Bus <--> SubA3
+    end
+
+    subgraph OBS["📊 可观测与治理"]
+        direction LR
+        Trace[Tracing]
+        Eval[Evaluation]
+        GR2[🛡️ Output Guardrails]
+        Cost[Cost & Token]
+    end
+
+    User --> GW --> GR1 --> Orchestrator
+    Reasoner <-.读写.-> WM
+    Reasoner <-.读取.-> STM
+    Reasoner <-.召回.-> LTM
+    Executor --> COREKIT
+    Executor --> FCALL
+    Executor --> MCP
+    Executor --> SKILL
+    Reasoner -. 检索 .-> Query
+    Rerank -. Top-K .-> Reasoner
+    Orchestrator <-.分派/汇总.-> MainA
+    FinalAns --> GR2 --> User
+    AGENT -.埋点.-> Trace
+    AGENT -.计费.-> Cost
+    Trace --> Eval
+
+    classDef user fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+    classDef core fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+    classDef mem fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px
+    classDef rag fill:#E8F5E9,stroke:#388E3C,stroke-width:2px
+    classDef tool fill:#FCE4EC,stroke:#C2185B,stroke-width:2px
+    classDef multi fill:#E0F7FA,stroke:#00838F,stroke-width:2px
+    classDef obs fill:#F5F5F5,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5
+
+    class User user
+    class Orchestrator,Planner,Reasoner,Executor,Reflector,ToolDecide,FinalAns core
+    class STM,LTM,WM,Summarizer mem
+    class Doc,Chunk,Embed,EmbCache,Query,VDB,BM25,Hybrid,Rerank rag
+    class T1,T2,T3,T4,T5,T6,FCALL,MCP,SKILL tool
+    class MainA,SubA1,SubA2,SubA3,Bus multi
+    class Trace,Eval,GR1,GR2,Cost obs
+  </div>
+</section>
+
+<!-- ======================== 2 ======================== -->
+<section id="s2">
+  <h2><span class="num">2</span>Agent Loop 时序图</h2>
+  <p class="lead">一次典型请求中各模块的协作顺序</p>
+  <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant GW as Gateway+Guardrails
+    participant O as Orchestrator
+    participant M as Memory
+    participant L as LLM Reasoner
+    participant R as RAG
+    participant T as Tool Executor
+    participant S as Sub-Agent
+
+    U->>GW: 提问/指令
+    GW->>O: 清洗后请求
+    O->>M: 拉取短期+长期记忆
+    M-->>O: Context 摘要
+    O->>L: 组装 Prompt
+
+    loop Agent Loop 直到无需工具
+        L->>L: 推理/规划
+        alt 需要知识
+            L->>R: 检索 Query
+            R->>R: 改写→向量→BM25→Rerank
+            R-->>L: Top-K 片段
+        else 需要工具
+            L->>T: tool_call(name, args)
+            alt MCP 远程
+                T->>T: 调 MCP Server
+            else 本地 Skill/Function
+                T->>T: 执行本地脚本
+            else 复杂子任务
+                T->>S: 派发子 Agent
+                S-->>T: 压缩后的结果
+            end
+            T-->>L: Observation
+        else 可直接回答
+            L-->>O: Final Answer
+        end
+    end
+
+    O->>M: 写入新记忆/摘要压缩
+    O->>GW: 输出审查
+    GW-->>U: 最终回答
+  </div>
+</section>
+
+<!-- ======================== 3 ======================== -->
+<section id="s3">
+  <h2><span class="num">3</span>RAG 链路专题</h2>
+  <p class="lead">离线建索引 + 在线查询两条链路</p>
+  <div class="mermaid">
+flowchart LR
+    subgraph OFFLINE["📦 离线 建索引"]
+        A[原始文档] --> B[切块 Chunk]
+        B --> C[Embedding API<br/>非 LLM API]
+        C --> D[(向量库)]
+        B --> E[(BM25 索引)]
+    end
+
+    subgraph ONLINE["⚡ 在线 查询"]
+        Q[用户 Query] --> QR[Query Rewrite<br/>HyDE/Multi-Query]
+        QR --> VS[向量检索]
+        QR --> KS[关键词检索]
+        D --> VS
+        E --> KS
+        VS --> FU[Hybrid 融合 RRF]
+        KS --> FU
+        FU --> RR[Reranker<br/>Cross-Encoder]
+        RR --> CTX[Top-K 上下文]
+        CTX --> P[Prompt 组装]
+        P --> LLM[LLM 生成]
+        LLM --> ANS[回答 + 引用]
+    end
+
+    style OFFLINE fill:#E8F5E9
+    style ONLINE fill:#FFF3E0
+  </div>
+</section>
+
+<!-- ======================== 4 ======================== -->
+<section id="s4">
+  <h2><span class="num">4</span>Tool / MCP / Skill 对比</h2>
+  <p class="lead">三种工具形态的核心差异</p>
+  <table>
+    <thead>
+      <tr><th>维度</th><th>Function Call (Tool)</th><th>MCP</th><th>Skill</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>调用方式</b></td><td>本地函数调用</td><td>远程标准协议（Anthropic）</td><td>本地渐进式加载</td></tr>
+      <tr><td><b>核心价值</b></td><td>扩展 LLM 执行能力</td><td>"即插即用"、跨应用复用</td><td>解决 MCP 工具过多导致 token 浪费</td></tr>
+      <tr><td><b>加载时机</b></td><td>全量注入 Prompt</td><td>全量注入 Prompt</td><td>按需加载 metadata，用到才展开</td></tr>
+      <tr><td><b>适用场景</b></td><td>简单函数、业务定制</td><td>生态化、跨厂商</td><td>复杂技能包、多步骤代码执行</td></tr>
+      <tr><td><b>代表</b></td><td>OpenAI function calling</td><td>Claude Desktop、Cursor</td><td>Claude Agent Skills</td></tr>
+    </tbody>
+  </table>
+  <blockquote>
+    <strong>经验法则：</strong> <code>bash / read / write / edit / grep / find</code> 这 6 个基础工具就能覆盖 80%+ 场景。<br/>
+    <strong>Vercel 实践：</strong> 移除 80% 的工具，text-to-sql 准确率反而从 80% → 100%。
+  </blockquote>
+</section>
+
+<!-- ======================== 5 ======================== -->
+<section id="s5">
+  <h2><span class="num">5</span>Memory 分层模型</h2>
+  <p class="lead">工作记忆 · 短期 · 长期（Episodic + Semantic + Procedural）</p>
+  <div class="mermaid">
+flowchart TB
+    Input[本轮输入] --> WM[🧠 Working Memory<br/>当前任务 Scratchpad<br/>临时笔记/中间结果]
+    WM --> STM[📝 Short-Term<br/>最近 N 轮对话原文]
+    STM -- 超窗口 --> SUM[Compressor<br/>摘要/实体抽取]
+    SUM --> LTM1[📚 Episodic<br/>事件记忆<br/>上次用户说...]
+    SUM --> LTM2[📖 Semantic<br/>事实记忆<br/>用户偏好/画像]
+    SUM --> LTM3[⚙️ Procedural<br/>程序记忆<br/>常用操作模式]
+
+    LTM1 --> VDB[(向量库)]
+    LTM2 --> KG[(知识图谱/KV)]
+    LTM3 --> FS[(规则库)]
+
+    VDB -. 召回 .-> STM
+    KG -. 召回 .-> STM
+    FS -. 召回 .-> STM
+
+    style WM fill:#FFF9C4
+    style STM fill:#FFE0B2
+    style LTM1 fill:#F8BBD0
+    style LTM2 fill:#F8BBD0
+    style LTM3 fill:#F8BBD0
+  </div>
+  <div class="formula">Memory = <span>短期（完整原文）</span> + <span>长期（压缩后的摘要/事实/程序）</span></div>
+</section>
+
+<!-- ======================== 6 ======================== -->
+<section id="s6">
+  <h2><span class="num">6</span>Multi-Agent 协作模式</h2>
+  <p class="lead">主-子 Agent 的上下文隔离机制</p>
+  <div class="mermaid">
+flowchart TB
+    User([用户请求]) --> Main[🎯 Main Agent<br/>主协调者<br/>持有完整上下文]
+
+    Main -->|派发子任务| Sub1[🔬 Research Agent<br/>独立上下文]
+    Main -->|派发子任务| Sub2[💻 Coding Agent<br/>独立上下文]
+    Main -->|派发子任务| Sub3[✅ Review Agent<br/>独立上下文]
+
+    Sub1 -->|只回传压缩结果| Main
+    Sub2 -->|只回传压缩结果| Main
+    Sub3 -->|只回传压缩结果| Main
+
+    Main --> Final([汇总最终答案])
+
+    Note1[📌 关键价值<br/>1. 上下文隔离<br/>2. 主上下文不被工具细节污染<br/>3. 支持并行加速]
+
+    style Main fill:#FFCDD2
+    style Sub1 fill:#C8E6C9
+    style Sub2 fill:#C8E6C9
+    style Sub3 fill:#C8E6C9
+    style Note1 fill:#FFF9C4,stroke-dasharray: 3 3
+  </div>
+  <blockquote>
+    <strong>经验：</strong> 单 Agent 够用大部分场景。只有当工具调用链路很长、上下文会被 tool 噪音淹没时，才上 Multi-Agent。
+  </blockquote>
+</section>
+
+<!-- ======================== 7 ======================== -->
+<section id="s7">
+  <h2><span class="num">7</span>关键结论速查</h2>
+  <ul class="keyp">
+    <li><b>① Agent 本质</b>Chatbot + Tools + Loop</li>
+    <li><b>② RAG 本质</b>先搜再答，核心 = Embedding + 向量库 + Rerank</li>
+    <li><b>③ 工具选型</b>少即是多，6 个基础工具 &gt; 80 个花哨工具</li>
+    <li><b>④ Memory</b>短期原文 + 长期压缩</li>
+    <li><b>⑤ Multi-Agent</b>不是银弹，先把单 Agent 打磨好</li>
+    <li><b>⑥ 生产级 Agent</b>Guardrails + Observability 是最后一公里</li>
+  </ul>
+</section>
+
+<footer>
+  📐 Generated with Mermaid + svg-pan-zoom · 每张图支持缩放/平移/全屏/下载 SVG
+</footer>
+
+</div>
+
+<script>
+  // 1. 初始化 Mermaid（先不 startOnLoad，手动渲染以便控制时机）
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { curve: 'basis', htmlLabels: true, useMaxWidth: false },
+    sequence: { useMaxWidth: false, showSequenceNumbers: false },
+    themeVariables: {
+      fontFamily: '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif',
+      primaryColor: '#eff6ff',
+      primaryBorderColor: '#3b82f6',
+      lineColor: '#64748b'
+    }
+  });
+
+  // 2. 渲染完成后，给每个 .mermaid 元素包装工具栏 + svg-pan-zoom
+  async function enhanceDiagrams(){
+    const nodes = document.querySelectorAll('.mermaid');
+    for(let i=0;i<nodes.length;i++){
+      const el = nodes[i];
+      const code = el.textContent.trim();
+      const id = 'm'+i+'-'+Date.now();
+      try{
+        const {svg} = await mermaid.render(id, code);
+        el.innerHTML = svg;
+      }catch(err){
+        el.innerHTML = '<pre style="color:#dc2626">渲染失败: '+err.message+'</pre>';
+        continue;
+      }
+      wrapWithToolbar(el, i);
+    }
+  }
+
+  function wrapWithToolbar(mermaidEl, idx){
+    // 包一层 diagram-box
+    const box = document.createElement('div');
+    box.className = 'diagram-box';
+    mermaidEl.parentNode.insertBefore(box, mermaidEl);
+    box.appendChild(mermaidEl);
+
+    // 提示
+    const hint = document.createElement('div');
+    hint.className = 'diagram-hint';
+    hint.textContent = '💡 滚轮缩放 · 拖拽平移 · 双击重置';
+    box.appendChild(hint);
+
+    // 工具栏
+    const toolbar = document.createElement('div');
+    toolbar.className = 'diagram-toolbar';
+    toolbar.innerHTML = `
+      <button data-act="in"  title="放大 (+)">➕</button>
+      <button data-act="out" title="缩小 (-)">➖</button>
+      <span class="zoom-level" data-level>100%</span>
+      <div class="sep"></div>
+      <button data-act="fit"   title="适应窗口">⛶</button>
+      <button data-act="reset" title="重置 (R)">↺</button>
+      <div class="sep"></div>
+      <button data-act="full"  title="全屏">🗖</button>
+      <button data-act="svg"   title="下载 SVG">💾</button>
+    `;
+    box.appendChild(toolbar);
+
+    // 初始化 svg-pan-zoom
+    const svg = mermaidEl.querySelector('svg');
+    if(!svg) return;
+    // 让 svg 充满容器
+    svg.setAttribute('width','100%');
+    svg.style.maxWidth='100%';
+    svg.style.height='500px';
+
+    const panZoom = svgPanZoom(svg,{
+      zoomEnabled:true,
+      controlIconsEnabled:false,
+      fit:true,
+      center:true,
+      minZoom:.3,
+      maxZoom:8,
+      zoomScaleSensitivity:.35,
+      dblClickZoomEnabled:false,
+      onZoom: (z)=>{
+        const lvl = toolbar.querySelector('[data-level]');
+        if(lvl) lvl.textContent = Math.round(z*100)+'%';
+      }
+    });
+
+    // 双击重置
+    mermaidEl.addEventListener('dblclick',()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
+
+    // 工具栏事件
+    toolbar.addEventListener('click',(e)=>{
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      const act = btn.dataset.act;
+      if(act==='in') panZoom.zoomIn();
+      else if(act==='out') panZoom.zoomOut();
+      else if(act==='fit'){ panZoom.fit(); panZoom.center(); }
+      else if(act==='reset'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); }
+      else if(act==='full'){
+        box.classList.toggle('fullscreen');
+        document.body.classList.toggle('has-fullscreen', box.classList.contains('fullscreen'));
+        setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },120);
+      }
+      else if(act==='svg'){ downloadSvg(svg, 'diagram-'+(idx+1)+'.svg'); }
+    });
+
+    // 键盘：全屏时支持 ESC / R
+    document.addEventListener('keydown',(e)=>{
+      if(!box.classList.contains('fullscreen')) return;
+      if(e.key==='Escape'){ box.classList.remove('fullscreen'); document.body.classList.remove('has-fullscreen'); setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },100); }
+      if(e.key==='r'||e.key==='R'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); }
+    });
+  }
+
+  function downloadSvg(svg, filename){
+    const clone = svg.cloneNode(true);
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    const src = '<?xml version="1.0" encoding="UTF-8"?>\n'+clone.outerHTML;
+    const blob = new Blob([src],{type:'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=filename; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),500);
+  }
+
+  // 等 Mermaid & svg-pan-zoom 都加载完
+  window.addEventListener('load', enhanceDiagrams);
+</script>
+</body>
+</html>
