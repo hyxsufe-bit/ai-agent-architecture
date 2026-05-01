@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>智能体手册 · 一份关于 LLM Agent 的田野指南</title>
+<title>智能体手册 · 一本写给 LLM Agent 的入门册子</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Serif+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -554,11 +554,11 @@ body.has-fullscreen{ overflow: hidden; }
   box-shadow: 6px 6px 0 var(--signal);
 }
 .formula::before{
-  content: "公式 /";
+  content: "一条公式";
   position: absolute;
   top: 8px; left: 16px;
   font-size: 9px;
-  letter-spacing: .25em;
+  letter-spacing: .2em;
   color: var(--signal);
   font-weight: 700;
 }
@@ -702,46 +702,46 @@ footer .tech{
 
 <!-- ======================== MASTHEAD ======================== -->
 <div class="masthead">
-  <div><span class="issue">● 第壹卷 · 创刊号</span> &nbsp;·&nbsp; 一本技术田野手册</div>
+  <div><span class="issue">● 第 01 期 · 创刊号</span> &nbsp;·&nbsp; 一份私人技术笔记</div>
   <div class="dots"><span class="dot red"></span><span class="dot"></span><span class="dot"></span></div>
-  <div class="date">贰零贰陆年 · 伍月号 &nbsp;·&nbsp; 免费流通</div>
+  <div class="date">2026 · 5 月 &nbsp;·&nbsp; 免费传阅</div>
 </div>
 
 <!-- ======================== HERO ======================== -->
 <header class="hero">
-  <div class="eyebrow">互动式架构图集 · 第 001 期</div>
+  <div class="eyebrow">AI Agent 架构图解 · 第 001 辑</div>
   <h1>
     智能体<br>
     <span class="ital">手册</span><span class="amp">。</span>
   </h1>
   <p class="deck">
-    一部献给当代 LLM Agent 的视觉指南 —— 写给那些想要看清它如何循环、
-    如何调用工具、如何记忆、以及如何在检索的幽微机械中，
-    终于显得有几分活气的读者。
+    把当下 LLM Agent 里绕来绕去的那点事，画成几张看得懂的图：
+    它怎么思考、怎么调工具、怎么记事、怎么检索 ——
+    讲清楚之后，你会发现其实并没有多复杂。
   </p>
   <div class="byline">
-    <div><div class="label">章 · CHAPTERS</div><div class="val">共计柒篇</div></div>
-    <div><div class="label">图 · DIAGRAMS</div><div class="val">六幅可交互</div></div>
-    <div><div class="label">主题 · TOPICS</div><div class="val">RAG · 循环 · MCP · 记忆</div></div>
-    <div><div class="label">形制 · FORMAT</div><div class="val">Mermaid · 缩放 · 拖拽</div></div>
+    <div><div class="label">章节</div><div class="val">共 7 篇</div></div>
+    <div><div class="label">图表</div><div class="val">6 张可交互</div></div>
+    <div><div class="label">主题</div><div class="val">RAG · 循环 · MCP · 记忆</div></div>
+    <div><div class="label">形式</div><div class="val">Mermaid · 可缩放</div></div>
   </div>
-  <div class="mark">↻ 滚动以翻阅 ↻</div>
+  <div class="mark">↻ 向下滚动阅读 ↻</div>
 </header>
 
 <!-- ======================== CONTENTS ======================== -->
 <nav class="contents">
   <div class="label">
     目录
-    <span class="big">卷中篇目</span>
+    <span class="big">本辑目录</span>
   </div>
   <ol>
-    <li><a href="#s1">总揽 · 一图见全貌</a></li>
-    <li><a href="#s2">解剖 · Agent 循环之序</a></li>
-    <li><a href="#s3">检索 · RAG 的双管道</a></li>
-    <li><a href="#s4">工具 · Tool / MCP / Skill</a></li>
-    <li><a href="#s5">记忆 · 短与长的结构</a></li>
-    <li><a href="#s6">分工 · 多智能体社会</a></li>
-    <li><a href="#s7">六则 · 收官之语</a></li>
+    <li><a href="#s1">一图看懂 Agent 全貌</a></li>
+    <li><a href="#s2">一次提问，内部发生了什么</a></li>
+    <li><a href="#s3">RAG：先搜一把再回答</a></li>
+    <li><a href="#s4">Tool、MCP、Skill 到底啥区别</a></li>
+    <li><a href="#s5">记忆是怎么存下来的</a></li>
+    <li><a href="#s6">多 Agent 协作是怎么回事</a></li>
+    <li><a href="#s7">六句话带走</a></li>
   </ol>
 </nav>
 
@@ -749,20 +749,20 @@ footer .tech{
 <section class="article reveal" id="s1">
   <aside class="chapter-mark">
     <span class="num">01</span>
-    <span class="tag"><strong>总揽</strong>全栈地图</span>
+    <span class="tag"><strong>总览</strong>先把全貌看一遍</span>
   </aside>
   <div class="article-body">
     <h2>
-      一图见全貌
-      <span class="en">— 单页之上，八层之深。</span>
+      一图看懂 Agent 全貌
+      <span class="en">— 一张图把 8 层结构串起来。</span>
     </h2>
     <p class="dek">
-      从用户的第一次敲击，到被审查后的最终回应，每一个运转的零件
-      都摊开在同一张纸上。从这里开始，也回到这里。
+      从用户敲下第一个字，到最终回答返回，中间经过的每一环都在这张图里。
+      先看这张，其他章节都是它的细节放大。
     </p>
     <div class="diagram-frame">
       <div class="figure-caption">
-        <span class="fig">图 壹 · 系统总图</span>
+        <span class="fig">图 1 · 系统总览</span>
         <span class="meta">Flowchart · TB</span>
       </div>
       <div class="diagram-box">
@@ -874,7 +874,7 @@ flowchart TB
     AGENT -.-> Cost
     Trace --> Eval
         </div>
-        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+        <div class="diagram-hint">鼠标滚轮缩放 · 按住拖动 · 双击还原</div>
       </div>
     </div>
   </div>
@@ -884,20 +884,20 @@ flowchart TB
 <section class="article reveal" id="s2">
   <aside class="chapter-mark">
     <span class="num">02</span>
-    <span class="tag"><strong>时序</strong>一次请求的一生</span>
+    <span class="tag"><strong>时序</strong>一次提问的完整流程</span>
   </aside>
   <div class="article-body">
     <h2>
-      Agent 循环之序
-      <span class="en">— 一次提问背后的编舞。</span>
+      一次提问，内部发生了什么
+      <span class="en">— 把请求处理过程拆成 8 个角色。</span>
     </h2>
     <p class="dek">
-      从提示词到最终回答之间，有八位参演者的协作。
-      这里给出乐谱，依序演奏。
+      用户看到的只有"提问"和"回答"两端，中间其实有 8 个角色在配合。
+      下面这张时序图，按顺序把它们讲清楚。
     </p>
     <div class="diagram-frame">
       <div class="figure-caption">
-        <span class="fig">图 贰 · 时序图</span>
+        <span class="fig">图 2 · 调用时序</span>
         <span class="meta">Sequence Diagram</span>
       </div>
       <div class="diagram-box">
@@ -945,7 +945,7 @@ sequenceDiagram
     O->>GW: 输出审查
     GW-->>U: 返回回答
         </div>
-        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+        <div class="diagram-hint">鼠标滚轮缩放 · 按住拖动 · 双击还原</div>
       </div>
     </div>
   </div>
@@ -955,20 +955,20 @@ sequenceDiagram
 <section class="article reveal" id="s3">
   <aside class="chapter-mark">
     <span class="num">03</span>
-    <span class="tag"><strong>检索</strong>先搜再答</span>
+    <span class="tag"><strong>RAG</strong>先搜再答</span>
   </aside>
   <div class="article-body">
     <h2>
-      RAG 的双管道
-      <span class="en">— 离线建索引，在线做检索。</span>
+      RAG：先搜一把再回答
+      <span class="en">— 离线建好索引，在线只管查。</span>
     </h2>
     <p class="dek">
-      大多数实用 Agent 背后不动声色的秘密：先搜，再答。
-      两条流水线，一件正事。
+      大多数好用的 Agent，本质上都在做同一件事：先搜索、再回答。
+      做法分两步 —— 平时建好索引，问的时候直接查。
     </p>
     <div class="diagram-frame">
       <div class="figure-caption">
-        <span class="fig">图 叁 · 双管道示意</span>
+        <span class="fig">图 3 · 两条流水线</span>
         <span class="meta">Flowchart · LR</span>
       </div>
       <div class="diagram-box">
@@ -996,7 +996,7 @@ flowchart LR
         LLM --> ANS[回答 + 引用]
     end
         </div>
-        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+        <div class="diagram-hint">鼠标滚轮缩放 · 按住拖动 · 双击还原</div>
       </div>
     </div>
   </div>
@@ -1006,16 +1006,16 @@ flowchart LR
 <section class="article reveal" id="s4">
   <aside class="chapter-mark">
     <span class="num">04</span>
-    <span class="tag"><strong>工具</strong>三者比较</span>
+    <span class="tag"><strong>工具</strong>三种形态横向对比</span>
   </aside>
   <div class="article-body">
     <h2>
-      Tool · MCP · Skill
-      <span class="en">— 三种赋予 Agent 双手的方式。</span>
+      Tool、MCP、Skill 到底啥区别
+      <span class="en">— 给 Agent "装工具"的三种方式。</span>
     </h2>
     <p class="dek">
-      函数调用近而便宜，MCP 远而通用，Skill 懒而节俭。
-      知其所需，方能择其所用。
+      Function Call 是本地函数，简单直接；MCP 是远程协议，跨厂商通用；
+      Skill 是本地包，按需加载省 token。知道各自适合什么，选起来就不纠结。
     </p>
     <table>
       <thead>
@@ -1028,42 +1028,42 @@ flowchart LR
       </thead>
       <tbody>
         <tr>
-          <td>调用方式</td>
-          <td>本地函数调用</td>
-          <td>远程标准协议（Anthropic）</td>
-          <td>本地渐进式加载</td>
+          <td>怎么调</td>
+          <td>直接调用本地函数</td>
+          <td>走远程协议（Anthropic 定的标准）</td>
+          <td>本地加载，按需展开</td>
         </tr>
         <tr>
-          <td>核心价值</td>
-          <td>扩展 LLM 执行能力</td>
-          <td>即插即用 · 跨应用复用</td>
-          <td>避免过多工具带来的 token 浪费</td>
+          <td>解决什么</td>
+          <td>给 LLM 加执行能力</td>
+          <td>让工具跨应用、跨厂商复用</td>
+          <td>工具太多时，省掉 token 浪费</td>
         </tr>
         <tr>
-          <td>加载时机</td>
-          <td>全量注入 Prompt</td>
-          <td>全量注入 Prompt</td>
-          <td>先加载 metadata，用到才展开</td>
+          <td>加载方式</td>
+          <td>全量塞进 Prompt</td>
+          <td>全量塞进 Prompt</td>
+          <td>先只加载目录，用到才展开</td>
         </tr>
         <tr>
-          <td>适用场景</td>
-          <td>简单业务函数</td>
-          <td>跨厂商生态</td>
-          <td>复杂多步骤的技能包</td>
+          <td>适合场景</td>
+          <td>简单的业务函数</td>
+          <td>跨生态协作</td>
+          <td>步骤多、逻辑重的技能包</td>
         </tr>
         <tr>
-          <td>代表实现</td>
+          <td>代表</td>
           <td>OpenAI function calling</td>
-          <td>Claude Desktop · Cursor</td>
+          <td>Claude Desktop、Cursor</td>
           <td>Claude Agent Skills</td>
         </tr>
       </tbody>
     </table>
     <blockquote>
-      <strong>经验之规</strong>
-      基础六件套 <code>bash / read / write / edit / grep / find</code>
-      覆盖了 Agent 日常所需的八成以上。Vercel 的经验广为流传 ——
-      他们砍掉了八成工具，结果 text-to-SQL 的准确率从 80% 升到了 100%。
+      <strong>一条经验</strong>
+      其实 <code>bash / read / write / edit / grep / find</code> 这六件基础工具，
+      已经能覆盖 Agent 八成以上的日常。Vercel 干过一件事 —— 砍掉 80% 的工具后，
+      text-to-SQL 的准确率反而从 80% 提到了 100%。
     </blockquote>
   </div>
 </section>
@@ -1072,20 +1072,20 @@ flowchart LR
 <section class="article reveal" id="s5">
   <aside class="chapter-mark">
     <span class="num">05</span>
-    <span class="tag"><strong>记忆</strong>短与长</span>
+    <span class="tag"><strong>记忆</strong>短期 + 长期</span>
   </aside>
   <div class="article-body">
     <h2>
-      短与长的结构
-      <span class="en">— 留下什么，压缩什么，遗忘什么。</span>
+      记忆是怎么存下来的
+      <span class="en">— 什么要留、什么要压缩、什么可以忘。</span>
     </h2>
     <p class="dek">
-      短期记忆承载一段对话，长期记忆承载一个人。
-      在两者之间，住着一位压缩器 —— 决定谁是谁。
+      短期记忆记的是"这次聊了什么"，长期记忆记的是"这个人是谁"。
+      两者中间还夹着一个压缩器，决定哪些话要整段留着、哪些只保留要点。
     </p>
     <div class="diagram-frame">
       <div class="figure-caption">
-        <span class="fig">图 肆 · 记忆层级</span>
+        <span class="fig">图 4 · 记忆分层</span>
         <span class="meta">Flowchart · TB</span>
       </div>
       <div class="diagram-box">
@@ -1093,10 +1093,10 @@ flowchart LR
 flowchart TB
     Input[本轮输入] --> WM[工作记忆<br/>当前任务草稿]
     WM --> STM[短期记忆<br/>最近 N 轮]
-    STM -- 溢出 --> SUM[压缩器<br/>摘要 · 实体抽取]
-    SUM --> LTM1[情景记忆<br/>事件]
-    SUM --> LTM2[语义记忆<br/>事实 · 画像]
-    SUM --> LTM3[程序记忆<br/>习惯模式]
+    STM -- 超出窗口 --> SUM[压缩器<br/>提取摘要 · 实体]
+    SUM --> LTM1[事件记忆<br/>发生过什么]
+    SUM --> LTM2[语义记忆<br/>事实 · 用户画像]
+    SUM --> LTM3[程序记忆<br/>习惯 · 偏好]
 
     LTM1 --> VDB[(向量库)]
     LTM2 --> KG[(知识图谱)]
@@ -1106,11 +1106,11 @@ flowchart TB
     KG -. 召回 .-> STM
     FS -. 召回 .-> STM
         </div>
-        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+        <div class="diagram-hint">鼠标滚轮缩放 · 按住拖动 · 双击还原</div>
       </div>
     </div>
     <div class="formula">
-      Memory <span>=</span> 短期 <span>(</span>逐字<span>)</span> <span>+</span> 长期 <span>(</span>压缩<span>)</span>
+      记忆 <span>=</span> 短期 <span>(</span>原样保留<span>)</span> <span>+</span> 长期 <span>(</span>压缩后保留<span>)</span>
     </div>
   </div>
 </section>
@@ -1119,47 +1119,46 @@ flowchart TB
 <section class="article reveal" id="s6">
   <aside class="chapter-mark">
     <span class="num">06</span>
-    <span class="tag"><strong>分工</strong>隔离之美</span>
+    <span class="tag"><strong>多 Agent</strong>为什么要分身</span>
   </aside>
   <div class="article-body">
     <h2>
-      多智能体社会
-      <span class="en">— 一个主帅，几位斥候。</span>
+      多 Agent 协作是怎么回事
+      <span class="en">— 主 Agent 管大局，子 Agent 干脏活。</span>
     </h2>
     <p class="dek">
-      单 Agent 足以胜任大多数场景。若还不够，答案很少是
-      "更多的 Agent"，而是"更好的隔离"。
+      大部分场景一个 Agent 就够了。只有当它越干越乱、上下文被工具日志塞爆的时候，
+      才需要拆出几个"子分身"去隔离处理 —— 这不是为了多，是为了干净。
     </p>
     <div class="diagram-frame">
       <div class="figure-caption">
-        <span class="fig">图 伍 · 派发模型</span>
+        <span class="fig">图 5 · 任务派发</span>
         <span class="meta">Flowchart · TB</span>
       </div>
       <div class="diagram-box">
         <div class="mermaid">
 flowchart TB
-    User([用户请求]) --> Main[主智能体<br/>协调者<br/>持有完整上下文]
+    User([用户请求]) --> Main[主 Agent<br/>负责统筹<br/>持有完整上下文]
 
     Main -->|派发| Sub1[研究员<br/>独立上下文]
     Main -->|派发| Sub2[编码员<br/>独立上下文]
     Main -->|派发| Sub3[审查员<br/>独立上下文]
 
-    Sub1 -->|压缩后的结果| Main
-    Sub2 -->|压缩后的结果| Main
-    Sub3 -->|压缩后的结果| Main
+    Sub1 -->|只回传结论| Main
+    Sub2 -->|只回传结论| Main
+    Sub3 -->|只回传结论| Main
 
-    Main --> Final([汇总最终答案])
+    Main --> Final([汇总 · 输出答案])
 
-    Note1[为何如此<br/>· 上下文隔离<br/>· 主上下文不被工具噪声污染<br/>· 天然支持并行]
+    Note1[为什么这样做<br/>· 子任务上下文互不干扰<br/>· 主 Agent 不会被工具输出淹没<br/>· 顺便获得并行加速]
         </div>
-        <div class="diagram-hint">滚轮缩放 · 拖拽平移 · 双击重置</div>
+        <div class="diagram-hint">鼠标滚轮缩放 · 按住拖动 · 双击还原</div>
       </div>
     </div>
     <blockquote>
-      <strong>告诫</strong>
-      单 Agent 已能应付几乎所有任务。只有当工具调用链路漫长，
-      噪声开始淹没主上下文的信号时，方可考虑引入多智能体 ——
-      它是最后一步，不是第一步。
+      <strong>一句话提醒</strong>
+      别一上来就上多 Agent。先把单 Agent 打磨好，等它的工具调用链真的长到
+      上下文被"垃圾信息"淹没，再考虑拆分不迟。
     </blockquote>
   </div>
 </section>
@@ -1168,47 +1167,46 @@ flowchart TB
 <section class="article reveal" id="s7">
   <aside class="chapter-mark">
     <span class="num">07</span>
-    <span class="tag"><strong>六则</strong>临别赠言</span>
+    <span class="tag"><strong>收尾</strong>带走这六句就够</span>
   </aside>
   <div class="article-body">
     <h2>
-      收官之语
-      <span class="en">— 六句话，带它回家。</span>
+      六句话带走
+      <span class="en">— 其他全忘了也没关系，记住这六条。</span>
     </h2>
     <p class="dek">
-      纵使忘掉本册的其他一切，这六条顽固的心法，
-      依然足以护佑你走得更远。
+      如果整本手册只让你带走一页，那就是这一页。六句话，每句对应一个章节的结论。
     </p>
     <ul class="keypoints">
       <li>
-        <span class="no">其 · 壹</span>
-        <b>Agent 之魂</b>
-        <span class="desc">Chatbot + Tools + Loop。除此之外，并无玄学。</span>
+        <span class="no">01</span>
+        <b>Agent 的本质</b>
+        <span class="desc">就是 Chatbot + 工具 + 循环，没别的玄学。</span>
       </li>
       <li>
-        <span class="no">其 · 贰</span>
-        <b>检索为本</b>
-        <span class="desc">先搜再答。Embedding、向量库与重排器，才是真正在干活的三位。</span>
+        <span class="no">02</span>
+        <b>RAG 的本质</b>
+        <span class="desc">先搜再答。干活的是 Embedding、向量库、重排器三件套。</span>
       </li>
       <li>
-        <span class="no">其 · 叁</span>
-        <b>少即是多</b>
-        <span class="desc">六件精挑细选的工具，胜过八十件花哨堆砌。克制本身就是一种功能。</span>
+        <span class="no">03</span>
+        <b>工具贵精不贵多</b>
+        <span class="desc">6 个基础工具比 80 个花哨工具好用得多，砍工具往往能提准确率。</span>
       </li>
       <li>
-        <span class="no">其 · 肆</span>
-        <b>记忆复利</b>
-        <span class="desc">要紧处逐字留存，其余压为恒久事实。唯此，记忆方能生息。</span>
+        <span class="no">04</span>
+        <b>记忆要分层</b>
+        <span class="desc">重要的原样留着，其余压缩成要点。短期 + 长期，缺一不可。</span>
       </li>
       <li>
-        <span class="no">其 · 伍</span>
-        <b>慎用分身</b>
-        <span class="desc">一个单 Agent 打磨到位，胜过三个仓促并行。多智能体不是万灵药。</span>
+        <span class="no">05</span>
+        <b>别急着上多 Agent</b>
+        <span class="desc">单 Agent 打磨到位，往往胜过三个 Agent 凑合着跑。</span>
       </li>
       <li>
-        <span class="no">其 · 陆</span>
-        <b>最后一公里</b>
-        <span class="desc">护栏与可观测性并非可选项。生产级系统，从它们开始。</span>
+        <span class="no">06</span>
+        <b>上线前看护栏</b>
+        <span class="desc">Guardrails 和可观测性不是加分项，是及格线。</span>
       </li>
     </ul>
   </div>
@@ -1217,12 +1215,12 @@ flowchart TB
 <!-- ======================== FOOTER ======================== -->
 <footer>
   <div class="colophon">
-    以 Fraunces · 思源宋体 · JetBrains Mono 排印
-    &nbsp;·&nbsp; 由 Mermaid 与 svg-pan-zoom 绘制
-    &nbsp;·&nbsp; 由你的浏览器印行
+    使用 Fraunces · 思源宋体 · JetBrains Mono 排版
+    &nbsp;·&nbsp; 图表由 Mermaid + svg-pan-zoom 渲染
+    &nbsp;·&nbsp; 用浏览器直接打开即可
   </div>
-  <div class="end">— 终 —</div>
-  <div class="tech">智能体手册 · 第壹卷 · 无版权保留 · 自由传阅</div>
+  <div class="end">— 完 —</div>
+  <div class="tech">智能体手册 · 第 01 期 · 无版权 · 随便转</div>
 </footer>
 
 <!-- ======================== SCRIPT ======================== -->
