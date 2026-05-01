@@ -377,11 +377,10 @@ section.article::before{
 .diagram-box .mermaid{
   padding: 20px;
   text-align: center;
-  min-height: 400px;
   cursor: grab;
 }
 .diagram-box .mermaid:active{ cursor: grabbing; }
-.diagram-box .mermaid svg{ max-width: none !important; height: auto !important; }
+.diagram-box .mermaid svg{ max-width: 100% !important; display: block; margin: 0 auto; }
 
 .diagram-toolbar{
   position: absolute;
@@ -1309,40 +1308,67 @@ flowchart TB
 
     const svg = mermaidEl.querySelector('svg');
     if(!svg) return;
-    svg.setAttribute('width','100%');
-    svg.style.maxWidth='100%';
-    svg.style.height='520px';
+
+    // 根据 viewBox 计算实际宽高比，自适应容器高度，避免大量空白
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    const ratio = (vb && vb.width > 0) ? (vb.height / vb.width) : 0.6;
+
+    // 每张图给一个合适的最大高度（第 1 张总览图最大，其他较紧凑）
+    const maxHeights = [720, 520, 420, 0, 480, 460];  // idx=3 是表格没有 SVG
+    const maxH = maxHeights[idx] || 520;
+
+    // 按容器宽度推算理想高度，但夹在 [280, maxH] 之间
+    const containerWidth = mermaidEl.clientWidth || 900;
+    const idealHeight = Math.round(containerWidth * ratio);
+    const finalHeight = Math.max(280, Math.min(maxH, idealHeight));
+
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.width = '100%';
+    svg.style.maxWidth = '100%';
+    svg.style.height = finalHeight + 'px';
+    svg.style.display = 'block';
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     const panZoom = svgPanZoom(svg,{
       zoomEnabled:true, controlIconsEnabled:false,
-      fit:true, center:true,
-      minZoom:.3, maxZoom:8,
+      fit:false, center:true, contain:false,
+      minZoom:.2, maxZoom:8,
       zoomScaleSensitivity:.35,
       dblClickZoomEnabled:false,
       onZoom:(z)=>{ const lvl = toolbar.querySelector('[data-level]'); if(lvl) lvl.textContent = Math.round(z*100)+'%'; }
     });
+    // 初始化后手动 fit+放大一点，确保内容填满容器而非留白
+    setTimeout(()=>{
+      panZoom.resize();
+      panZoom.fit();
+      panZoom.center();
+      // 再 zoom in 一点吃掉 svg-pan-zoom 的默认 padding
+      panZoom.zoomBy(1.15);
+      panZoom.center();
+    }, 50);
 
-    mermaidEl.addEventListener('dblclick',()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
+    mermaidEl.addEventListener('dblclick',()=>{ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); panZoom.zoomBy(1.15); panZoom.center(); });
 
     toolbar.addEventListener('click',(e)=>{
       const btn = e.target.closest('button'); if(!btn) return;
       const act = btn.dataset.act;
       if(act==='in') panZoom.zoomIn();
       else if(act==='out') panZoom.zoomOut();
-      else if(act==='fit'){ panZoom.fit(); panZoom.center(); }
-      else if(act==='reset'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); }
+      else if(act==='fit'){ panZoom.fit(); panZoom.center(); panZoom.zoomBy(1.15); panZoom.center(); }
+      else if(act==='reset'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); panZoom.zoomBy(1.15); panZoom.center(); }
       else if(act==='full'){
         frame.classList.toggle('fullscreen');
         document.body.classList.toggle('has-fullscreen', frame.classList.contains('fullscreen'));
-        setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },120);
+        setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); panZoom.zoomBy(1.1); panZoom.center(); },120);
       }
       else if(act==='svg'){ downloadSvg(svg, 'agent-manual-fig-'+String(idx+1).padStart(2,'0')+'.svg'); }
     });
 
     document.addEventListener('keydown',(e)=>{
       if(!frame.classList.contains('fullscreen')) return;
-      if(e.key==='Escape'){ frame.classList.remove('fullscreen'); document.body.classList.remove('has-fullscreen'); setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); },100); }
-      if(e.key==='r'||e.key==='R'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); }
+      if(e.key==='Escape'){ frame.classList.remove('fullscreen'); document.body.classList.remove('has-fullscreen'); setTimeout(()=>{ panZoom.resize(); panZoom.fit(); panZoom.center(); panZoom.zoomBy(1.15); panZoom.center(); },100); }
+      if(e.key==='r'||e.key==='R'){ panZoom.resetZoom(); panZoom.fit(); panZoom.center(); panZoom.zoomBy(1.15); panZoom.center(); }
     });
   }
 
